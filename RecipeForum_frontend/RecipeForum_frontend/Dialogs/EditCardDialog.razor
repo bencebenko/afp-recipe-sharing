@@ -1,0 +1,28 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="Recipe">
+            <MudGrid>
+                <MudItem>
+
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@Close">
+            Close
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code{
+    [CascadingParameter] public IMudDialogInstance MudDialog { get; set; }
+    [EditorRequired, Parameter] public RecipeDto Recipe { get; set; }
+    private MudForm form = new();
+
+    private async Task Close()
+    {
+        MudDialog.Close();
+    }
+
+}
