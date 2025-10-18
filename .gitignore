@@ -482,3 +482,24 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Maven / Gradle
+target/
+build/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+.gradle/
+**/build/
+**/out/
+
+# Logs
+logs/
+
+# Environment / configs
+*.env
+application-*.yaml
