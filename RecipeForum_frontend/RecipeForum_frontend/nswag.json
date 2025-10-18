@@ -1,0 +1,11 @@
+﻿{
+	"runtime": "Net90",
+	"codeGenerators": {
+		"openApiToCSharpClient": {
+			"namespace": "RecipeForum_frontend.GeneratedClient",
+			"output": "Swagger/Generated.cs",
+			"input": "Swagger/swagger.json",
+			"className" :  "SwaggerClient"
+		}
+	}
+}

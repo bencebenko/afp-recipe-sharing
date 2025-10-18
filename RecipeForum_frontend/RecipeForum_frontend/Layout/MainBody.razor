@@ -1,0 +1,26 @@
+﻿<MudAppBar Elevation="25">
+    <MudToolBar Gutters="false">
+        <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" Class="ml-3" />
+    </MudToolBar>
+</MudAppBar>
+
+<MudDrawer @bind-Open="_drawerOpen" Elevation="25" ClipMode="DrawerClipMode.Always">
+    <NavMenu />
+</MudDrawer>
+
+<MudMainContent>
+    <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">      
+        @ChildContent
+    </MudContainer>
+</MudMainContent>
+
+@code{
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    private bool _drawerOpen = true;
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}
