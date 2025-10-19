@@ -1,12 +1,13 @@
 package hu.ekke.receptmegoszto.dto;
 
-import java.util.List;
-
-public record RecipeDto(
-        Long id,
-        String title,
-        String servings,
-        String duration,
-        List<String> ingredients,
-        List<String> steps
-) {}
+public class RecipeDto {
+    private Long id;
+    private String name;
+    private String imageRef;
+    private Integer prepTime;
+    private Integer cookTime;
+    private Integer portion;
+    private String description;
+    private String preparationSteps;
+    private Long categoryId;
+}
