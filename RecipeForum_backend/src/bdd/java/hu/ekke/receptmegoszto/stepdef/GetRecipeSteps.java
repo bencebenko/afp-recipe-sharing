@@ -1,11 +1,10 @@
 package hu.ekke.receptmegoszto.stepdef;
 
-import hu.ekke.receptmegoszto.domain.MyUser;
+import hu.ekke.receptmegoszto.domain.RecipeUser;
 import hu.ekke.receptmegoszto.domain.Recipe;
 import hu.ekke.receptmegoszto.repository.RecipeRepository;
 import hu.ekke.receptmegoszto.repository.UserDetailsRepository;
 import io.cucumber.java.Before;
-import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -43,7 +42,7 @@ public class GetRecipeSteps {
 
     @Before
     public void setupUser() {
-        MyUser user = new MyUser();
+        RecipeUser user = new RecipeUser();
         user.setUserName("gyuri");
         user.setPassword(passwordEncoder.encode("titok"));
         user.setRoles("ROLE_USER");

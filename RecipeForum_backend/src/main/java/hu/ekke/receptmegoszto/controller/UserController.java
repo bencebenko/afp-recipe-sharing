@@ -1,6 +1,6 @@
 package hu.ekke.receptmegoszto.controller;
 
-import hu.ekke.receptmegoszto.domain.MyUser;
+import hu.ekke.receptmegoszto.domain.RecipeUser;
 import hu.ekke.receptmegoszto.dto.UserRegisterDto;
 import hu.ekke.receptmegoszto.repository.UserDetailsRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,14 +20,15 @@ public class UserController {
 
     @PostMapping("/register")
     public String register(@RequestBody UserRegisterDto dto) {
-        if (repository.findByUserName(dto.userName()).isPresent()) {
+        if (repository.findByUserName(dto.name()).isPresent()) {
             return "Hiba: ilyen felhasználó már létezik!";
         }
 
-        MyUser user = new MyUser();
+        RecipeUser user = new RecipeUser();
+        user.setName(dto.name());
         user.setUserName(dto.userName());
-        user.setPassword(encoder.encode(dto.password()));
-        user.setRoles("ROLE_USER");
+        user.setPasswordEncoded(encoder.encode(dto.password()));
+        user.setEmail(dto.email());
 
         repository.save(user);
         return "Sikeres regisztráció!";
