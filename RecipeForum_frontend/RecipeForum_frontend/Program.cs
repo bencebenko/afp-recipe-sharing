@@ -1,10 +1,11 @@
 using Blazored.LocalStorage;
-using RecipeForum_frontend.Generated;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
+using RecipeForum_frontend.Generated;
 using RecipeForum_frontend.Infrastructure;
 using RecipeForum_frontend.Infrastructure.Interfaces;
 using System.Globalization;
@@ -21,7 +22,6 @@ namespace RecipeForum_frontend
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
             builder.Services.AddBlazoredLocalStorage();
-            builder.Services.AddScoped<ITokenService, TokenService>();
 
             builder.Services.AddMudServices(configuration =>
             {
@@ -32,24 +32,15 @@ namespace RecipeForum_frontend
                 configuration.SnackbarConfiguration.ShowCloseIcon = true;
             });
 
-            builder.Services.AddTransient<AuthHeaderHandler>();
-            builder.Services.AddHttpClient("RecipeForum", client =>
+            builder.Services.AddHttpClient<SwaggerClient>(client =>
             {
-                client.DefaultRequestHeaders.AcceptLanguage.Clear();
-                client.DefaultRequestHeaders.AcceptLanguage.ParseAdd(CultureInfo.DefaultThreadCurrentCulture?.TwoLetterISOLanguageName);
-                client.BaseAddress = new Uri("http://127.0.0.1:5180");
-                client.Timeout = TimeSpan.FromSeconds(1);
-            }).AddHttpMessageHandler<AuthHeaderHandler>();
+                client.BaseAddress = new Uri("http://localhost:8080"); 
+            });
 
+            builder.Services.AddAuthorizationCore();
+            builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthenticationStateProvider>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddSingleton<MudLocalizer, MudLocalizer>();
-            builder.Services.AddHttpClientInterceptor();
-            builder.Services.AddScoped<SwaggerClient>(
-                sp => new SwaggerClient(sp.GetRequiredService<IHttpClientFactory>()
-                .CreateClient("RecipeForum")
-                .EnableIntercept(sp))
-            );
-
             builder.Services.AddBlazorContextMenu();
 
             await builder.Build().RunAsync();
