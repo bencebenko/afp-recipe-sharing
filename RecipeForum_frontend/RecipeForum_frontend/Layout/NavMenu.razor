@@ -1,6 +1,30 @@
-﻿@using Pages
+﻿@code {
+    public static RenderFragment PrimaryLinks = @<Fragment>
+        <MudNavMenu Class="nav-text d-md-flex mx-2">
+            <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Főoldal</MudNavLink>
+            <MudNavLink Href="/Categories" Icon="@Icons.Material.Filled.Interests">Kategóriák</MudNavLink>
+        </MudNavMenu>
+    </Fragment>;
 
-<MudNavMenu>
-    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
-    <MudNavLink Href="/Account" Icon="@Icons.Material.Filled.SupervisorAccount" Match="NavLinkMatch.All">Account</MudNavLink>
-</MudNavMenu>
+    public static RenderFragment SecondaryLinks = @<Fragment>
+    @*bejelentkezési kezelése alapján vagy ez - én ide tenném a logindialogust, vagy ha maradunk a page-nél, akkor a bejelentkezési linket.*@
+    <MudNavLink Href="/Account" Icon="@Icons.Material.Filled.Login">Bejelentkezés</MudNavLink>
+        @*  itt a másik felea bejelentkezetteknek:
+                        <MudMenuItem Icon="@Icons.Material.Filled.PersonOutline" Label="Profilom" />
+                        <MudMenuItem Icon="@Icons.Material.Filled.Upload" Label="Recept feltöltés" />
+                        <MudDivider />
+                        <MudMenuItem Icon="@Icons.Material.Filled.Logout" Label="Kijelentkezés" />*@
+    </Fragment>;
+}
+
+@if (ChildContent is not null)
+{
+    <MudNavMenu Class="nav-text mx-2">
+        @ChildContent
+    </MudNavMenu>
+}
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
