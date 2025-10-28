@@ -1,26 +1,91 @@
-﻿<MudAppBar Elevation="25">
-    <MudToolBar Gutters="false">
-        <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" Class="ml-3" />
+﻿@inject NavigationManager Navigation
+﻿
+<MudAppBar Elevation="25" Fixed="true" class="appbar-blurred">
+    <MudToolBar Gutters="true" Style="width: 100%;">
+        <MudButton Href="/" StartIcon="@Icons.Material.Outlined.DinnerDining">
+            <MudHidden Breakpoint="Breakpoint.SmAndDown">ReceptMegosztó</MudHidden>
+        </MudButton>
+
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <MudSpacer />
+            @NavMenu.PrimaryLinks
+        </MudHidden>
+
+        <MudSpacer />
+
+        @*A kereső innen indul*@
+        <MudHidden Breakpoint="Breakpoint.Xs">
+            <MudTextField @bind-Value="Search" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End"
+                          AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Dark"
+                          Class="flex-shrink-1" Style="min-width: 150px; max-width: 300px; width: 30vw;" />
+        </MudHidden>
+
+        <MudHidden Breakpoint="Breakpoint.SmAndUp">
+            @if (_showMobileSearch)
+            {
+                <MudTextField @bind-Value="Search" Placeholder="Keresés..." Variant="Variant.Outlined" FullWidth="true"
+                              Class="mx-2" Style="width: 100%;" />
+
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Edge="Edge.End" OnClick="ToggleMobileSearch" />
+            }
+            else
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Search" Edge="Edge.End" OnClick="ToggleMobileSearch" />
+            }
+        </MudHidden>
+        @*A kereső idáig tart*@
+
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                <ActivatorContent>
+                    <MudAvatar>
+                        <MudImage Icon="@Icons.Material.Filled.AccountCircle" />
+                    </MudAvatar>
+                </ActivatorContent>
+                <ChildContent>
+                    @NavMenu.SecondaryLinks
+                </ChildContent>
+            </MudMenu>
+        </MudHidden>
+
+        <MudHidden Breakpoint="Breakpoint.MdAndUp">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Edge="Edge.End" OnClick="@ToggleDrawer" />
+        </MudHidden>
     </MudToolBar>
 </MudAppBar>
 
-<MudDrawer @bind-Open="_drawerOpen" Elevation="25" ClipMode="DrawerClipMode.Always">
-    <NavMenu />
+<MudDrawer @bind-Open="_drawerOpen" Elevation="2" Anchor="Anchor.Right" ClipMode="DrawerClipMode.Always" Class="d-md-none">
+    <NavMenu>
+        <MudNavMenu Class="nav-text flex-column pa-4">
+            @NavMenu.PrimaryLinks
+            <MudDivider Class="my-2" />
+            @NavMenu.SecondaryLinks
+        </MudNavMenu>
+    </NavMenu>
 </MudDrawer>
 
-<MudMainContent>
-    <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">      
+<MudMainContent Class="@(_drawerOpen ? "ml-drawer" : "")">
+    <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
         @ChildContent
     </MudContainer>
 </MudMainContent>
 
-@code{
-
+@code {
     [Parameter]
     public RenderFragment ChildContent { get; set; }
-    private bool _drawerOpen = true;
-    private void DrawerToggle()
+
+    public string Search { get; set; }
+    private bool _drawerOpen;
+
+    private void ToggleDrawer()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    private bool _showMobileSearch = false;
+
+    private void ToggleMobileSearch()
+    {
+        _showMobileSearch = !_showMobileSearch;
     }
 }
