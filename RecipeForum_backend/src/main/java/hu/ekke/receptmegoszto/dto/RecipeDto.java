@@ -1,5 +1,14 @@
 package hu.ekke.receptmegoszto.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class RecipeDto {
     private Long id;
     private String name;
@@ -10,4 +19,5 @@ public class RecipeDto {
     private String description;
     private String preparationSteps;
     private Long categoryId;
+    private List<IngredientDto> ingredients;
 }
