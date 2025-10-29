@@ -7,6 +7,7 @@ namespace RecipeForum_frontend.Infrastructure
     public class CookieAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly SwaggerClient _apiClient;
+        private bool _isAuthenticated = false;
 
         public CookieAuthenticationStateProvider(SwaggerClient apiClient)
         {
@@ -15,13 +16,25 @@ namespace RecipeForum_frontend.Infrastructure
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
+            if (_isAuthenticated)
+            {
+                var cachedIdentity = new ClaimsIdentity("cookie-auth");
+                return new AuthenticationState(new ClaimsPrincipal(cachedIdentity));
+            }
+
             try
             {
-                var identity = new ClaimsIdentity( "cookie-auth");
+                var identity = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Role, "User")
+                }, "cookie-auth");
+
+                _isAuthenticated = true; // Mark as authenticated
                 return new AuthenticationState(new ClaimsPrincipal(identity));
             }
-            catch (RecipeForum_frontend.Generated.ApiException ex) when (ex.StatusCode == 401)
+            catch (ApiException ex) when (ex.StatusCode == 401)
             {
+                _isAuthenticated = false;
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }

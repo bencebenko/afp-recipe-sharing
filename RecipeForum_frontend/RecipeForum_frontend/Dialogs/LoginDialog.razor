@@ -1,4 +1,9 @@
-﻿<MudDialog>
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using RecipeForum_frontend.Infrastructure
+@inject IRequestService RequestService
+@inject AuthenticationStateProvider AuthProvider
+
+<MudDialog>
     <DialogContent>
         <MudForm @ref="form">
             <MudGrid>
@@ -16,6 +21,11 @@
                                   InputType="InputType.Password"
                                   AdornmentIcon="@Icons.Material.Filled.Key"
                                   @bind-Value="Password" />
+                </MudItem>
+                <MudItem>
+                    <MudText>
+                        If you don't have an account, create one <MudLink Href="">here</MudLink>
+                    </MudText>
                 </MudItem>
             </MudGrid>
         </MudForm>
@@ -41,7 +51,10 @@
             await form.Validate();
             if (form.IsValid)
             {
+                await RequestService.LoginAsync(Username, Password);
+                ((CookieAuthenticationStateProvider)AuthProvider).NotifyAuthenticationStateChanged();
                 Snackbar.Add("Form valid", Severity.Success);
+                
             }
         }
         catch (Exception)
