@@ -1,0 +1,23 @@
+﻿@page "/Account"
+@using Dialogs
+@inject NavigationManager NavigationManager
+@inject IUserService userService
+
+<MudGrid>
+    <MudItem>
+        <MudText>You are not logged in.</MudText>
+    </MudItem>
+</MudGrid>
+
+@code{
+    private bool IsUserLoggedIn = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsUserLoggedIn = await userService.IsUserLoggedIn();
+        if (!IsUserLoggedIn)
+        {
+            NavigationManager.NavigateTo("http://localhost:8080/login");
+        }
+    }
+}

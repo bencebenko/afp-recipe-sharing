@@ -1,51 +1,10 @@
 ﻿@page "/Recipe/{RecipeId:int}"
 <MudGrid>
-    <MudItem Style="height:400px;">
-        Pic of food
-    </MudItem>
-    <MudItem>
-        <MudDataGrid T="string" Items="recipe.Steps">
-            <Columns>
-                <PropertyColumn Property="x => x"/>
-            </Columns>
-        </MudDataGrid>
-    </MudItem>
-    <MudItem>
-        <MudText>
 
-        </MudText>
-    </MudItem>
 </MudGrid>
 
 @code {
     [Parameter] public int RecipeId { get; set; }
-
-    private RecipeDto recipe { get; set; } = new RecipeDto()
-    {
-        Id = 1,
-        Title = "Classic Pancakes",
-        Servings = "4 servings",
-        Duration = "20 minutes",
-        Ingredients = new List<string>()
-        {
-            "1 1/2 cups all-purpose flour",
-            "3 1/2 tsp baking powder",
-            "1 tsp salt",
-            "1 tbsp sugar",
-            "1 1/4 cups milk",
-            "1 egg",
-            "3 tbsp melted butter"
-        },
-        Steps = new List<string>()
-        {
-            "In a large bowl, sift together flour, baking powder, salt, and sugar.",
-            "Make a well in the center and pour in the milk, egg, and melted butter.",
-            "Mix until smooth.",
-            "Heat a lightly oiled griddle or frying pan over medium-high heat.",
-            "Pour or scoop the batter onto the griddle, using approximately 1/4 cup for each pancake.",
-            "Brown on both sides and serve hot."
-        }
-    };
 
     protected override async Task OnInitializedAsync()
     {

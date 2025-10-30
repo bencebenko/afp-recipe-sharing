@@ -1,7 +1,11 @@
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
@@ -21,7 +25,17 @@ namespace RecipeForum_frontend
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
-            builder.Services.AddBlazoredLocalStorage();
+
+            builder.Services.AddSingleton<MudLocalizer, MudLocalizer>();
+
+            builder.Services.AddAuthorizationCore();
+            builder.Services.AddScoped<CookieHandler>();
+            builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthenticationStateProvider>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddCascadingAuthenticationState();
+
+            builder.Services.AddScoped<IRequestService, RequestService>();
+            builder.Services.AddBlazorContextMenu();
 
             builder.Services.AddMudServices(configuration =>
             {
@@ -32,16 +46,19 @@ namespace RecipeForum_frontend
                 configuration.SnackbarConfiguration.ShowCloseIcon = true;
             });
 
-            builder.Services.AddHttpClient<SwaggerClient>(client =>
+            builder.Services.AddTransient<UnauthorizedHandler>();
+            builder.Services.Configure<CookiePolicyOptions>(options =>
             {
-                client.BaseAddress = new Uri("http://localhost:8080"); 
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            builder.Services.AddAuthorizationCore();
-            builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthenticationStateProvider>();
-            builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddSingleton<MudLocalizer, MudLocalizer>();
-            builder.Services.AddBlazorContextMenu();
+            builder.Services.AddHttpClient<SwaggerClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:8080");    
+            })
+            .AddHttpMessageHandler<CookieHandler>()
+            .AddHttpMessageHandler<UnauthorizedHandler>();
 
             await builder.Build().RunAsync();
         }
