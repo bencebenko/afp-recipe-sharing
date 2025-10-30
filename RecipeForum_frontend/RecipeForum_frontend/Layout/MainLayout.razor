@@ -1,10 +1,18 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+@using RecipeForum_frontend.Pages
+
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 <MudPopoverProvider />
-<MudLayout>
-    <MainBody>
-        @Body
-    </MainBody>
-</MudLayout>
+<AuthorizeView>
+    <Authorized>
+        <MudLayout>
+            <MainBody>
+                @Body
+            </MainBody>
+        </MudLayout>
+    </Authorized>
+</AuthorizeView>

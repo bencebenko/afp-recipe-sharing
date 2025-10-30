@@ -8,15 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Swagger\swagger.json" />
+    <Compile Remove="Infrastructure\Models\**" />
+    <Content Remove="Infrastructure\Models\**" />
+    <EmbeddedResource Remove="Infrastructure\Models\**" />
+    <None Remove="Infrastructure\Models\**" />
   </ItemGroup>
 	<ItemGroup>
-		<!--<OpenApiReference Include="OpenAPIs\api-docs.json" Namespace="RecipeForum_frontend.Generated" ClassName="SwaggerClient">
+		<OpenApiReference Include="OpenAPIs\api-docs.json" Namespace="RecipeForum_frontend.Generated" ClassName="SwaggerClient">
 		  <SourceUri>http://localhost:8080/v3/api-docs</SourceUri>
-		</OpenApiReference>-->
-		
-		<OpenApiReference Include="Swagger\swagger.json" Namespace="RecipeForum_frontend.Generated" ClassName="SwaggerClient" />
-		<None Include="Swagger\swagger.json" ClassName="SwaggerClient" />
+		</OpenApiReference>
+				
+		<!--<OpenApiReference Include="Swagger\swagger.json" Namespace="RecipeForum_frontend.Generated" ClassName="SwaggerClient" />-->
 	</ItemGroup>
 
   <ItemGroup>
@@ -25,7 +27,9 @@
     <PackageReference Include="bootstrap" Version="5.3.8" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.19" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.19" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="9.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.19" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.CookiePolicy" Version="2.3.0" />
     <PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="8.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -43,9 +47,5 @@
 
   <ItemGroup>
     <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Infrastructure\Models\" />
   </ItemGroup>
 </Project>

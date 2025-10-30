@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿ @page "/"
 @using RecipeForum_frontend.Dialogs
 @inject NavigationManager NavigationManager
 
@@ -11,20 +11,20 @@
             <MudCard>
                 <MudCardHeader>
                     @* <CardHeaderAvatar>
-                <MudAvatar Color="Color.Secondary">I</MudAvatar>
-            </CardHeaderAvatar> 
-            Profile picture*@
-            
+        <MudAvatar Color="Color.Secondary">I</MudAvatar>
+    </CardHeaderAvatar> 
+    Profile picture*@
+
                     <CardHeaderContent>
-                        <MudText Typo="Typo.body1">@item.Title</MudText>
-                        <MudText Typo="Typo.body2">@($"{item.Servings} - {item.Duration}")</MudText>
+                        <MudText Typo="Typo.body1">@item.Name</MudText>
+                        <MudText Typo="Typo.body2">@($"{item.Portion} - {item.CookTime}")</MudText>
                     </CardHeaderContent>
                     @*<CardHeaderActions>
-                        @if (true) If the current user is the author of this post the he/she can edit it
-                        {
-                            <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />
-                        }
-                    </CardHeaderActions>*@
+                @if (true) If the current user is the author of this post the he/she can edit it
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />
+                }
+            </CardHeaderActions>*@
                 </MudCardHeader>
                 <MudCardContent Style="height: 250px;">
                     <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="250" />
@@ -40,170 +40,28 @@
                 </MudCardActions>
             </MudCard>
         </MudItem>
-            
+
     }
 </MudGrid>
     
 @code{
     public MudDataGrid<RecipeDto> DataGrid { get; set; }
-    private List<RecipeDto> recipes { get; set; } = new List<RecipeDto>()
-    {
-        new RecipeDto()
-        {
-            Id = 1,
-            Title = "Classic Pancakes",
-            Servings = "4 servings",
-            Duration = "20 minutes",
-            Ingredients = new List<string>()
-            {
-                "1 1/2 cups all-purpose flour",
-                "3 1/2 tsp baking powder",
-                "1 tsp salt",
-                "1 tbsp sugar",
-                "1 1/4 cups milk",
-                "1 egg",
-                "3 tbsp melted butter"
-            },
-            Steps = new List<string>()
-            {
-                "In a large bowl, sift together flour, baking powder, salt, and sugar.",
-                "Make a well in the center and pour in the milk, egg, and melted butter.",
-                "Mix until smooth.",
-                "Heat a lightly oiled griddle or frying pan over medium-high heat.",
-                "Pour or scoop the batter onto the griddle, using approximately 1/4 cup for each pancake.",
-                "Brown on both sides and serve hot."
-            }
-        },
-        new RecipeDto()
-        {
-            Id = 2,
-            Title = "Spaghetti Carbonara",
-            Servings = "2 servings",
-            Duration = "25 minutes",
-            Ingredients = new List<string>()
-            {
-                "200g spaghetti",
-                "100g pancetta or bacon",
-                "2 large eggs",
-                "50g grated Parmesan cheese",
-                "2 cloves garlic",
-                "Salt and pepper to taste"
-            },
-            Steps = new List<string>()
-            {
-                "Cook spaghetti in salted boiling water according to package instructions.",
-                "Fry pancetta in a pan until crisp. Add minced garlic and cook for 1 minute.",
-                "Beat eggs in a bowl and mix with grated Parmesan.",
-                "Drain pasta and quickly toss with pancetta, then remove from heat.",
-                "Stir in egg and cheese mixture, letting the residual heat cook the eggs.",
-                "Season with salt and pepper, then serve immediately."
-            }
-        },
-        new RecipeDto()
-        {
-            Id = 3,
-            Title = "Chicken Caesar Salad",
-            Servings = "3 servings",
-            Duration = "15 minutes",
-            Ingredients = new List<string>()
-            {
-                "2 chicken breasts, grilled and sliced",
-                "4 cups romaine lettuce, chopped",
-                "1/4 cup Caesar dressing",
-                "1/4 cup grated Parmesan cheese",
-                "1 cup croutons",
-                "Salt and pepper to taste"
-            },
-            Steps = new List<string>()
-            {
-                "Grill or pan-sear chicken breasts until fully cooked.",
-                "Slice the chicken and set aside.",
-                "In a large bowl, combine lettuce, dressing, Parmesan, and croutons.",
-                "Toss well to coat.",
-                "Top with sliced chicken and serve immediately."
-            }
-        },
-        new RecipeDto()
-        {
-            Id = 4,
-            Title = "Vegetable Stir-Fry",
-            Servings = "2 servings",
-            Duration = "15 minutes",
-            Ingredients = new List<string>()
-            {
-                "1 cup broccoli florets",
-                "1 red bell pepper, sliced",
-                "1 carrot, sliced",
-                "2 tbsp soy sauce",
-                "1 tbsp olive oil",
-                "1 tsp sesame oil",
-                "1 clove garlic, minced"
-            },
-            Steps = new List<string>()
-            {
-                "Heat olive oil in a wok or large skillet over medium-high heat.",
-                "Add garlic and sauté for 30 seconds.",
-                "Add vegetables and stir-fry for 5–7 minutes until tender-crisp.",
-                "Add soy sauce and sesame oil, stir well, and cook for another minute.",
-                "Serve hot with rice or noodles."
-            }
-        },
-        new RecipeDto()
-        {
-            Id = 5,
-            Title = "Chocolate Chip Cookies",
-            Servings = "24 cookies",
-            Duration = "30 minutes",
-            Ingredients = new List<string>()
-            {
-                "2 1/4 cups all-purpose flour",
-                "1 tsp baking soda",
-                "1 tsp salt",
-                "1 cup butter, softened",
-                "3/4 cup sugar",
-                "3/4 cup brown sugar",
-                "1 tsp vanilla extract",
-                "2 large eggs",
-                "2 cups chocolate chips"
-            },
-            Steps = new List<string>()
-            {
-                "Preheat oven to 375°F (190°C).",
-                "Combine flour, baking soda, and salt in a small bowl.",
-                "Beat butter, sugar, brown sugar, and vanilla extract in a large bowl until creamy.",
-                "Add eggs one at a time, beating well after each addition.",
-                "Gradually beat in flour mixture.",
-                "Stir in chocolate chips.",
-                "Drop by rounded tablespoon onto ungreased baking sheets.",
-                "Bake for 9–11 minutes or until golden brown.",
-                "Cool on wire racks."
-            }
-        }
-    };
+    private List<RecipeDto> recipes { get; set; } 
 
 
     protected override async Task OnInitializedAsync()
     {
-        //await LoadRecipesAsync();
+        await LoadRecipesAsync();
     }
 
     private async Task LoadRecipesAsync()
     {
         var result = await SwaggerClient.GetAllAsync();
+        recipes = result?.ToList() ?? new();
     }
 
     private async Task NavigateToRecipe(long recipeId)
     {
         NavigationManager.NavigateTo($"/Recipe/{recipeId}");
     }
-
-    private async Task OpenLoginDialog()
-    {
-        var options = new DialogOptions()
-        {
-            CloseOnEscapeKey = true,
-            MaxWidth = MaxWidth.Medium
-        };
-        var result = await DialogService.ShowAsync<Login>("Login", options);
-    }
-}
+} 
