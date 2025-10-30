@@ -18,7 +18,7 @@
         IsUserLoggedIn = await userService.IsUserLoggedIn();
         if (!IsUserLoggedIn)
         {
-            NavigationManager.NavigateTo("http://localhost:8080/login");
+            await OnLogin();
         }
     }
 
