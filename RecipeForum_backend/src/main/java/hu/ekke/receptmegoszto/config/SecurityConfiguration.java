@@ -34,11 +34,15 @@ public class SecurityConfiguration {
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(login -> {})
+                .formLogin(login -> login
+                        .successHandler((request, response, authentication) -> {
+                            response.sendRedirect("http://localhost:5180/");
+                        })
+                )
                 .httpBasic(withDefaults())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/receipt/1")
+                        .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                 );
