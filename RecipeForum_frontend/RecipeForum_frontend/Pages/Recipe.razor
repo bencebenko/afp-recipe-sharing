@@ -1,10 +1,90 @@
 ﻿@page "/Recipe/{RecipeId:int}"
-<MudGrid>
 
-</MudGrid>
+<MudContainer Class="m-4">
+    <MudGrid>
+        <MudItem xs="12" sm="4">
+            <MudImage Src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&h=600&fit=crop" Alt="Picture of the food" Fluid="true" Class="rounded-lg" Elevation="25" />
+        </MudItem>
+
+        <MudItem xs="12" sm="8">
+            <MudStack>
+                <MudItem xs="12" sm="12">
+                    <MudText Typo="Typo.h4">
+                        @recipe.Name
+                    </MudText>
+                </MudItem>
+                <MudItem xs="12" sm="12">
+                    <MudText Typo="Typo.body2">
+                        @recipe.Description
+                    </MudText>
+                </MudItem>
+
+                <MudItem xs="12" sm="12">
+                    <MudStack Row>
+                        <MudItem xs="6">
+                            <MudStack Row>
+                                <MudItem Class="d-flex justify-content-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.Schedule" />
+                                </MudItem>
+                                <MudItem>
+                                    <MudText Typo="Typo.caption">Preparation time:</MudText>
+                                    <MudText Typo="Typo.body1">@($"{recipe.PrepTime} minutes")</MudText>
+                                </MudItem>
+                            </MudStack>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudStack Row>
+                                <MudItem Class="d-flex justify-content-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.Schedule" />
+                                </MudItem>
+                                <MudItem>
+                                    <MudText Typo="Typo.caption">Cook time:</MudText>
+                                    <MudText Typo="Typo.body1">@($"{recipe.CookTime} minutes")</MudText>
+                                </MudItem>
+                            </MudStack>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudStack Row>
+                                <MudItem Class="d-flex justify-content-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.SupervisorAccount" />
+                                </MudItem>
+                                <MudItem>
+                                    <MudText Typo="Typo.caption">Portions:</MudText>
+                                    <MudText Typo="Typo.body1">@($"{recipe.Portion} person")</MudText>
+                                </MudItem>
+                            </MudStack>
+                        </MudItem>
+                    </MudStack>
+                </MudItem>
+            </MudStack>
+            
+        </MudItem>
+
+        <MudItem xs="12" sm="8">
+            <ul>
+                @if (recipe.Ingredients.Count > 0)
+                {
+                    @foreach (var item in recipe.Ingredients)
+                    {
+                        <li>@item.Quantity</li>
+                    }
+                }
+            </ul>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            Nutrition values
+        </MudItem>
+        <MudItem xs="12" sm="12">
+            @($"{recipe.PreparationSteps}")
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
 
 @code {
     [Parameter] public int RecipeId { get; set; }
+
+    private RecipeDto recipe { get; set; } = new RecipeDto();
 
     protected override async Task OnInitializedAsync()
     {
@@ -13,6 +93,12 @@
 
     private async Task LoadRecipe()
     {
-        //recipe = await SwaggerClient.GetByIdAsync(RecipeId);
+        try{
+            recipe = await SwaggerClient.GetByIdAsync(RecipeId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading recipe: {ex.Message}");
+        }   
     }
 }
