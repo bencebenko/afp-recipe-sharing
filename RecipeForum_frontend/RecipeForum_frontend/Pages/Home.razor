@@ -2,34 +2,27 @@
 @using RecipeForum_frontend.Dialogs
 @inject NavigationManager NavigationManager
 
+<style>
+    .card:hover{
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        cursor: pointer;
+    }
+</style>
+
 <PageTitle>Home</PageTitle>
 
 <MudGrid Class="d-flex flex-wrap">
     @foreach (RecipeDto item in recipes)
     {
         <MudItem xs="12" sm="4">
-            <MudCard>
+            <MudCard Class="card" onclick="@(() => NavigateToRecipe(item.Id))">
                 <MudCardHeader>
-                    @* <CardHeaderAvatar>
-        <MudAvatar Color="Color.Secondary">I</MudAvatar>
-    </CardHeaderAvatar> 
-    Profile picture*@
-
                     <CardHeaderContent>
                         <MudText Typo="Typo.body1">@item.Name</MudText>
                         <MudText Typo="Typo.body2">@($"{item.Portion} - {item.CookTime}")</MudText>
                     </CardHeaderContent>
-                    @*<CardHeaderActions>
-                @if (true) If the current user is the author of this post the he/she can edit it
-                {
-                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />
-                }
-            </CardHeaderActions>*@
                 </MudCardHeader>
-                <MudCardContent Style="height: 250px;">
-                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="250" />
-                </MudCardContent>
-                @*<MudCardMedia Image="images/pilars.jpg" Height="250" /> Some picture of the actual food*@
+                <MudCardMedia Image="@item.ImageRef" Height="250" />
                 <MudCardActions>
                     <MudTooltip Text="Like">
                         <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
@@ -40,7 +33,6 @@
                 </MudCardActions>
             </MudCard>
         </MudItem>
-
     }
 </MudGrid>
     
@@ -56,6 +48,7 @@
 
     private async Task LoadRecipesAsync()
     {
+        recipes = new();
         var result = await SwaggerClient.GetAllAsync();
         recipes = result?.ToList() ?? new();
     }
