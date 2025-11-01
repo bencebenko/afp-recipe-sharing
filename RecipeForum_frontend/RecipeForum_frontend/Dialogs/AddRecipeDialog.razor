@@ -1,0 +1,83 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="Recipe">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField Variant="Variant.Outlined" @bind-Value="Recipe.Name" Label="Dish Name" Required="true" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudNumericField Variant="Variant.Outlined" @bind-Value="Recipe.CookTime" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Timer" Label="Cook Time" Required="true" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudNumericField Variant="Variant.Outlined" @bind-Value="Recipe.PrepTime" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Timer" Label="Preparation Time" Required="true" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudNumericField Variant="Variant.Outlined" @bind-Value="Recipe.Portion" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.SupervisorAccount" Label="Portions" Required="true" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField Variant="Variant.Outlined" @bind-Value="Recipe.Description" Label="Description" Lines="5"/>
+                </MudItem>
+
+                <MudItem xs="12" Class="d-flex gap-2 flex-column">
+                    <MudText Typo="Typo.caption">Preparation Steps</MudText>
+                    @for (int i = 0; i < PreparationSteps.Count; i++)
+                    {
+                        <MudTextField Adornment="Adornment.Start" AdornmentText="@($"{i + 1}.")" Value="PreparationSteps[i]" ValueChanged="@((string value) => OnStepChanged(value, i))"/>
+                    }
+                    <MudButton Variant="Variant.Outlined" OnClick="@(AddToSteps)" ButtonType="ButtonType.Button">Add Step</MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="@Close">
+            Close
+        </MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@Save">
+            Save
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public IMudDialogInstance MudDialog { get; set; }
+
+    private RecipeDto Recipe { get; set; } = new();
+    private List<string> PreparationSteps { get; set; } = new();
+    private MudForm form = new();
+
+    private async Task Save()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            Recipe.CategoryId = 2;
+            Recipe.Description = "";
+            Recipe.Ingredients = new List<IngredientDto>() { new IngredientDto() { Id = 1, MaterialId = 1, Quantity = "3db" } };
+            Recipe.ImageRef = "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&h=600&fit=crop";
+            Recipe.PreparationSteps = string.Join(", ", PreparationSteps);
+            await SwaggerClient.SaveAsync(Recipe);
+            MudDialog.Close(DialogResult.Ok(Recipe));
+        }
+    }
+
+    private async Task OnStepChanged(string step, int index)
+    {
+        PreparationSteps[index-1] = step;
+    }
+
+    private async Task AddToSteps()
+    {
+        PreparationSteps.Add("");
+    }
+
+    private async Task Close()
+    {
+        MudDialog.Close();
+    }
+
+}
