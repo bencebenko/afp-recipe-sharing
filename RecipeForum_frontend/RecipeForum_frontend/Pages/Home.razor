@@ -12,14 +12,14 @@
 
 <PageTitle>Home</PageTitle>
 
-@if (IsLoggedIn)
+@if (true) @*Only if the user is logged in. Temporary place for the add recipe button only for testing, in "prod" iw will be up in the navbar*@
 {
     <MudGrid>
         <MudItem>
             <MudButton Variant="Variant.Filled" OnClick="@(() => OpenAddRecipeDialog())" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary">Add Recipe</MudButton>
         </MudItem>
     </MudGrid>
-    <MudDivider />
+    <MudDivider Class="my-6" />
 }
 <MudGrid Class="d-flex flex-wrap">
     
@@ -51,7 +51,6 @@
     private List<RecipeDto> recipes { get; set; }
     private bool IsLoggedIn = false;
 
-
     protected override async Task OnInitializedAsync()
     {
         await LoadRecipesAsync();
@@ -74,7 +73,7 @@
         if (!result.Canceled)
         {
             await LoadRecipesAsync();
-            StateHasChanged();
+            Snackbar.Add("Recipe added", Severity.Success);
         }
     }
 
