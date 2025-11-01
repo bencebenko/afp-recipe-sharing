@@ -1,6 +1,6 @@
 ﻿function getCookie(name) {
     var cookie = document.cookie;
-    if (cookie.includes(name + "=")) {
+    if (cookie.includes(name)) {
         return cookie;
     }
     else {

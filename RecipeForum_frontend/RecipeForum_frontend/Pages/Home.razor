@@ -1,6 +1,7 @@
-﻿ @page "/"
+﻿@page "/"
 @using RecipeForum_frontend.Dialogs
 @inject NavigationManager NavigationManager
+@inject IUserService userService
 
 <style>
     .card:hover{
@@ -11,7 +12,17 @@
 
 <PageTitle>Home</PageTitle>
 
+@if (IsLoggedIn)
+{
+    <MudGrid>
+        <MudItem>
+            <MudButton Variant="Variant.Filled" OnClick="@(() => OpenAddRecipeDialog())" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary">Add Recipe</MudButton>
+        </MudItem>
+    </MudGrid>
+    <MudDivider />
+}
 <MudGrid Class="d-flex flex-wrap">
+    
     @foreach (RecipeDto item in recipes)
     {
         <MudItem xs="12" sm="4">
@@ -22,7 +33,7 @@
                         <MudText Typo="Typo.body2">@($"{item.Portion} - {item.CookTime}")</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
-                <MudCardMedia Image="@item.ImageRef" Height="250" />
+                <MudCardMedia Image="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&h=600&fit=crop"  Height="250" />
                 <MudCardActions>
                     <MudTooltip Text="Like">
                         <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
@@ -37,13 +48,14 @@
 </MudGrid>
     
 @code{
-    public MudDataGrid<RecipeDto> DataGrid { get; set; }
-    private List<RecipeDto> recipes { get; set; } 
+    private List<RecipeDto> recipes { get; set; }
+    private bool IsLoggedIn = false;
 
 
     protected override async Task OnInitializedAsync()
     {
         await LoadRecipesAsync();
+        IsLoggedIn = await userService.IsUserLoggedIn();
     }
 
     private async Task LoadRecipesAsync()
@@ -51,6 +63,19 @@
         recipes = new();
         var result = await SwaggerClient.GetAllAsync();
         recipes = result?.ToList() ?? new();
+    }
+
+    private async Task OpenAddRecipeDialog()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<AddRecipeDialog>("Add New Recipe", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadRecipesAsync();
+            StateHasChanged();
+        }
     }
 
     private async Task NavigateToRecipe(long recipeId)
