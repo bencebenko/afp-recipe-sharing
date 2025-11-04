@@ -1,30 +1,69 @@
-﻿@code {
-    public static RenderFragment PrimaryLinks = @<Fragment>
+﻿<MudToolBar Gutters="true" Style="width: 100%;">
+    <MudButton Href="/" StartIcon="@Icons.Material.Outlined.DinnerDining">
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">RecipeSharing</MudHidden>
+    </MudButton>
+
+    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+        <MudSpacer />
         <MudNavMenu Class="nav-text d-md-flex mx-2">
-            <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Főoldal</MudNavLink>
-            <MudNavLink Href="/Categories" Icon="@Icons.Material.Filled.Interests">Kategóriák</MudNavLink>
+            <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
+            <MudNavLink Href="/Categories" Icon="@Icons.Material.Filled.Interests">Categories</MudNavLink>
         </MudNavMenu>
-    </Fragment>;
+    </MudHidden>
 
-    public static RenderFragment SecondaryLinks = @<Fragment>
-    @*bejelentkezési kezelése alapján vagy ez - én ide tenném a logindialogust, vagy ha maradunk a page-nél, akkor a bejelentkezési linket.*@
-    <MudNavLink Href="/Account" Icon="@Icons.Material.Filled.Login">Bejelentkezés</MudNavLink>
-        @*  itt a másik felea bejelentkezetteknek:
-                        <MudMenuItem Icon="@Icons.Material.Filled.PersonOutline" Label="Profilom" />
-                        <MudMenuItem Icon="@Icons.Material.Filled.Upload" Label="Recept feltöltés" />
-                        <MudDivider />
-                        <MudMenuItem Icon="@Icons.Material.Filled.Logout" Label="Kijelentkezés" />*@
-    </Fragment>;
-}
+    <MudSpacer />
 
-@if (ChildContent is not null)
-{
-    <MudNavMenu Class="nav-text mx-2">
-        @ChildContent
-    </MudNavMenu>
-}
+    @*Searchbar starts here...*@
+    <MudHidden Breakpoint="Breakpoint.Xs">
+        <MudTextField @bind-Value="Search" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Dark"
+                      Class="flex-shrink-1" Style="min-width: 150px; max-width: 300px; width: 30vw;" />
+    </MudHidden>
+
+    <MudHidden Breakpoint="Breakpoint.SmAndUp">
+        @if (_showMobileSearch)
+        {
+            <MudTextField @bind-Value="Search" Placeholder="Searching..." Variant="Variant.Outlined" FullWidth="true"
+                          Class="mx-2" Style="width: 100%;" />
+
+            <MudIconButton Icon="@Icons.Material.Filled.Close" Edge="Edge.End" OnClick="ToggleMobileSearch" />
+        }
+        else
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.Search" Edge="Edge.End" OnClick="ToggleMobileSearch" />
+        }
+    </MudHidden>
+    @*Searchbar ends here*@
+
+    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+        <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <ActivatorContent>
+                <MudAvatar Color="Color.Default" Variant="Variant.Filled">
+                    <MudIcon Color="Color.Dark" Icon="@Icons.Material.Filled.AccountCircle" Size="Size.Large" />
+                </MudAvatar>
+            </ActivatorContent>
+            <ChildContent>
+                <AccountNavMenu />
+            </ChildContent>
+        </MudMenu>
+    </MudHidden>
+
+    @* Menu Drawer - EventCallback for MainBody's method *@
+    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Edge="Edge.End" OnClick="@(() => OnToggleDrawer.InvokeAsync())" />
+    </MudHidden>
+</MudToolBar>
+
 
 @code {
     [Parameter]
-    public RenderFragment? ChildContent { get; set; }
+    public EventCallback OnToggleDrawer { get; set; }
+
+    public string Search { get; set; }
+    private bool _showMobileSearch = false;
+
+    private void ToggleMobileSearch()
+    {
+        _showMobileSearch = !_showMobileSearch;
+    }
 }
