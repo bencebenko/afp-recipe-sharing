@@ -1,0 +1,67 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization 
+@using RecipeForum_frontend.Infrastructure 
+@using RecipeForum_frontend.Dialogs 
+@inject AuthenticationStateProvider AuthProvider 
+@inject IUserService userService 
+@inject NavigationManager Navigation
+
+
+<AuthorizeView>
+    @* USER MENU *@ 
+    <Authorized>
+        <MudNavLink Href="/" Icon="@Icons.Material.Filled.PersonOutline">Profile</MudNavLink> @*Insert here profile page link*@ 
+        <MudNavLink OnClick="@(() => OpenAddRecipeDialog())" Icon="@Icons.Material.Filled.Upload">Add Recipe</MudNavLink> @*Recipe dialog*@
+        <MudDivider Class="my-2" /> 
+        <MudNavLink Icon="@Icons.Material.Filled.Logout" OnClick=" Logout">Logout</MudNavLink>
+    </Authorized> 
+
+    @* GUEST MENU *@ 
+    <NotAuthorized> 
+        <MudNavLink Href="/Account" Icon="@Icons.Material.Filled.Login">Login</MudNavLink> 
+     </NotAuthorized> 
+</AuthorizeView>
+
+@code { 
+    private async Task Logout() 
+    { 
+        if (AuthProvider is CookieAuthenticationStateProvider cookieAuth) 
+        { 
+            cookieAuth.NotifyAuthenticationStateChanged();
+            Snackbar.Add("Logged out succesfully.", Severity.Info);
+        } 
+    } 
+
+    private List<RecipeDto> recipes { get; set; } 
+    private bool IsLoggedIn = false; 
+    protected override async Task OnInitializedAsync() 
+    { 
+        await LoadRecipesAsync(); IsLoggedIn = await userService.IsUserLoggedIn(); 
+    } 
+    
+    private async Task LoadRecipesAsync() 
+    { 
+        recipes = new(); 
+        var result = await SwaggerClient.GetAllAsync(); 
+        recipes = result?.ToList() ?? new(); 
+    } 
+    
+    private async Task OpenAddRecipeDialog() 
+    { 
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() 
+        { 
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true 
+        };
+        var dialog = await DialogService.ShowAsync<AddRecipeDialog>("Add New Recipe", parameters, options); 
+        var result = await dialog.Result;
+        
+        if (!result.Canceled) 
+        {
+            await LoadRecipesAsync();
+            Snackbar.Add("Recipe added", Severity.Success);
+        }     
+    } 
+
+}
