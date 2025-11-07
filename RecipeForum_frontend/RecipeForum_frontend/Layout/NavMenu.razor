@@ -1,4 +1,6 @@
-﻿<MudToolBar Gutters="true" Style="width: 100%;">
+﻿@inject NavigationManager NavigationManager
+
+<MudToolBar Gutters="true" Style="width: 100%;">
     <MudButton Href="/" StartIcon="@Icons.Material.Outlined.DinnerDining">
         <MudHidden Breakpoint="Breakpoint.SmAndDown">RecipeSharing</MudHidden>
     </MudButton>
@@ -7,7 +9,7 @@
         <MudSpacer />
         <MudNavMenu Class="nav-text d-md-flex mx-2">
             <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
-            <MudNavLink Href="/Categories" Icon="@Icons.Material.Filled.Interests">Categories</MudNavLink>
+            <MudNavLink OnClick="@(() => NavigationManager.NavigateTo("/Categories"))" Icon="@Icons.Material.Filled.Interests">Categories</MudNavLink>
         </MudNavMenu>
     </MudHidden>
 
