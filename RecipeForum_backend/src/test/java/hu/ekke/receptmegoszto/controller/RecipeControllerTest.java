@@ -18,7 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-//Git megj.
+
 @WebMvcTest(controllers = RecipeController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class RecipeControllerTest {
