@@ -18,6 +18,7 @@ Feature: Recipe Management
 
   Scenario: Successfully saving a new recipe
     Given I am logged in with username "gyuri" and password "titok"
+    Given categories and materials exist in the database
     When I send a POST request to "/recipe" with recipe data
     Then the response status is 200
     And the saved recipe has a generated ID

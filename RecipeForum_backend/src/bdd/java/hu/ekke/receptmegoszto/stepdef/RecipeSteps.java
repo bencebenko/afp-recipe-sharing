@@ -68,6 +68,28 @@ public class RecipeSteps {
         this.auth = httpBasic(user, pass);
     }
 
+    @Given("categories and materials exist in the database")
+    public void categoriesAndMaterialsExistInTheDatabase() {
+        Category category = new Category();
+        category.setName("Hungarian");
+        categoryRepository.save(category);
+
+        Material beef = new Material();
+        beef.setName("Beef");
+        beef.setUnitOfMeasure("g");
+        materialRepository.save(beef);
+
+        Material onion = new Material();
+        onion.setName("Onion");
+        onion.setUnitOfMeasure("pcs");
+        materialRepository.save(onion);
+
+        Material paprika = new Material();
+        paprika.setName("Paprika");
+        paprika.setUnitOfMeasure("tbsp");
+        materialRepository.save(paprika);
+    }
+
     @Given("there is a recipe in the database with title {string}, servings {string}, duration {string}")
     public void thereIsARecipeInTheDatabase(String title, String servings, String duration) {
         Category category = new Category();
