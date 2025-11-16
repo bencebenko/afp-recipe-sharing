@@ -20,7 +20,7 @@ public class UserController {
 
     @PostMapping("/register")
     public String register(@RequestBody UserRegisterDto dto) {
-        if (repository.findByUserName(dto.name()).isPresent()) {
+        if (repository.findByUserName(dto.userName()).isPresent()) {
             return "Hiba: ilyen felhasználó már létezik!";
         }
 
