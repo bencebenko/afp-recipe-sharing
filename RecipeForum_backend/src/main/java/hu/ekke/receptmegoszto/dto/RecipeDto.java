@@ -18,6 +18,6 @@ public class RecipeDto {
     private Integer portion;
     private String description;
     private String preparationSteps;
-    private Long categoryId;
+    private CategoryDto category;
     private List<IngredientDto> ingredients;
 }

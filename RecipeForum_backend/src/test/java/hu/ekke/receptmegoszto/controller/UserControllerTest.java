@@ -34,7 +34,7 @@ class UserControllerTest {
 
     @Test
     void register_ShouldReturnError_WhenUserAlreadyExists() throws Exception {
-        Mockito.when(repository.findByUserName("Dávid"))
+        Mockito.when(repository.findByUserName("david"))
                 .thenReturn(Optional.of(new RecipeUser()));
 
         mockMvc.perform(post("/user/register")

@@ -3,6 +3,8 @@ package hu.ekke.receptmegoszto.service;
 import hu.ekke.receptmegoszto.domain.*;
 import hu.ekke.receptmegoszto.dto.IngredientDto;
 import hu.ekke.receptmegoszto.dto.RecipeDto;
+import hu.ekke.receptmegoszto.dto.CategoryDto;
+import hu.ekke.receptmegoszto.dto.MaterialDto;
 import hu.ekke.receptmegoszto.mapper.RecipeMapper;
 import hu.ekke.receptmegoszto.repository.*;
 import org.jmock.Expectations;
@@ -43,7 +45,7 @@ class RecipeServiceTest {
         List<RecipeDto> result = service.getAll();
 
         assertEquals(1, result.size());
-        assertSame(recipeDto, result.get(0));
+        assertTrue(result.contains(recipeDto));
         context.assertIsSatisfied();
     }
 
@@ -60,9 +62,12 @@ class RecipeServiceTest {
         RecipeService service = new RecipeService(repo, mapper, userRepo, materialRepo, categoryRepo);
 
         RecipeDto inputDto = new RecipeDto();
-        inputDto.setCategoryId(1L);
+        inputDto.setCategory(new CategoryDto(1L, null));
         IngredientDto ingDto = new IngredientDto();
-        ingDto.setMaterialId(10L);
+        // create MaterialDto using no-arg constructor and set id (MaterialDto has many fields now)
+        MaterialDto matDto = new MaterialDto();
+        matDto.setId(10L);
+        ingDto.setMaterial(matDto);
         ingDto.setQuantity("2 cups");
         inputDto.setIngredients(List.of(ingDto));
 

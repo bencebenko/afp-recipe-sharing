@@ -1,12 +1,12 @@
 package hu.ekke.receptmegoszto.controller;
 
 import hu.ekke.receptmegoszto.dto.RecipeDto;
+import hu.ekke.receptmegoszto.dto.CategoryDto;
 import hu.ekke.receptmegoszto.service.RecipeService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -32,7 +32,7 @@ class RecipeControllerTest {
     @Test
     void getAll_ShouldReturnListOfRecipes() throws Exception {
         RecipeDto dto = new RecipeDto(1L, "Pizza", null, 10, 20, 2,
-                "Tésztás", "Sütés 20 perc", 3L, List.of());
+                "Tésztás", "Sütés 20 perc", new CategoryDto(3L, null), List.of());
         Mockito.when(service.getAll()).thenReturn(List.of(dto));
 
         mockMvc.perform(get("/recipe"))
@@ -44,7 +44,7 @@ class RecipeControllerTest {
     @Test
     void getById_ShouldReturnRecipe() throws Exception {
         RecipeDto dto = new RecipeDto(2L, "Leves", null, 5, 15, 4,
-                "Finom", "Keverés", 1L, List.of());
+                "Finom", "Keverés", new CategoryDto(1L, null), List.of());
         Mockito.when(service.getById(2L)).thenReturn(dto);
 
         mockMvc.perform(get("/recipe/2"))
@@ -56,7 +56,7 @@ class RecipeControllerTest {
     @Test
     void save_ShouldReturnSavedRecipe() throws Exception {
         RecipeDto dto = new RecipeDto(3L, "Gulyás", null, 20, 60, 6,
-                "Marhahúsos", "Főzés 1 óra", 2L, List.of());
+                "Marhahúsos", "Főzés 1 óra", new CategoryDto(2L, null), List.of());
         Mockito.when(service.saveRecipe(any(RecipeDto.class), any())).thenReturn(dto);
 
         mockMvc.perform(post("/recipe")
