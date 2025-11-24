@@ -9,6 +9,7 @@ import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -22,6 +23,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Component
 public class RecipeSteps {
 
     @Autowired
@@ -162,14 +164,14 @@ public class RecipeSteps {
                     "portion": 4,
                     "description": "Hungarian stew",
                     "preparationSteps": "Cut meat\\nFry onions\\nAdd paprika\\nCook until tender",
-                    "categoryId": 1,
+                    "category": { "id": 1 },
                     "ingredients": [
                         {
-                            "materialId": 1,
+                            "material": { "id": 1 },
                             "quantity": "800"
                         },
                         {
-                            "materialId": 2,
+                            "material": { "id": 2 },
                             "quantity": "3"
                         }
                     ]
@@ -223,4 +225,3 @@ public class RecipeSteps {
                 .andExpect(jsonPath("$.id", notNullValue()));
     }
 }
-

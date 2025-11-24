@@ -1,7 +1,6 @@
 package hu.ekke.receptmegoszto.service;
 
 import hu.ekke.receptmegoszto.domain.*;
-import hu.ekke.receptmegoszto.dto.IngredientDto;
 import hu.ekke.receptmegoszto.dto.RecipeDto;
 import hu.ekke.receptmegoszto.mapper.RecipeMapper;
 import hu.ekke.receptmegoszto.repository.*;
@@ -40,9 +39,10 @@ public class RecipeService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + principal.getName()));
         recipe.setUser(user);
 
-        if (dto.getCategoryId() != null) {
-            Category category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found: " + dto.getCategoryId()));
+        if (dto.getCategory() != null && dto.getCategory().getId() != null) {
+            Long catId = dto.getCategory().getId();
+            Category category = categoryRepository.findById(catId)
+                    .orElseThrow(() -> new RuntimeException("Category not found: " + catId));
             recipe.setCategory(category);
         }
 
@@ -53,9 +53,12 @@ public class RecipeService {
                         ingredient.setRecipe(recipe);
                         ingredient.setQuantity(ingredientDto.getQuantity());
 
-                        Material material = materialRepository.findById(ingredientDto.getMaterialId())
-                                .orElseThrow(() -> new RuntimeException("Material not found: " + ingredientDto.getMaterialId()));
-                        ingredient.setMaterial(material);
+                        if (ingredientDto.getMaterial() != null && ingredientDto.getMaterial().getId() != null) {
+                            Long matId = ingredientDto.getMaterial().getId();
+                            Material material = materialRepository.findById(matId)
+                                    .orElseThrow(() -> new RuntimeException("Material not found: " + matId));
+                            ingredient.setMaterial(material);
+                        }
 
                         return ingredient;
                     })
