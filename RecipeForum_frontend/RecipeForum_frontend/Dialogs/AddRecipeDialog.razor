@@ -2,8 +2,20 @@
     <DialogContent>
         <MudForm @ref="form" Model="Recipe">
             <MudGrid>
-                <MudItem xs="12">
+                <MudItem xs="12" sm="8">
                     <MudTextField Variant="Variant.Outlined" @bind-Value="Recipe.Name" Label="Dish Name" Required="true" />
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudAutocomplete T="CategoryDto"
+                                     Label="Category"
+                                     Variant="Variant.Outlined"
+                                     Required="true"
+                                     Value="category"
+                                     ValueChanged="m => OnCategoryChanged(m)"
+                                     SearchFunc="SearchCategories"
+                                     MinCharacters="0"
+                                     ToStringFunc="x => x.Name" />
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
@@ -23,11 +35,45 @@
                 </MudItem>
 
                 <MudItem xs="12" Class="d-flex gap-2 flex-column">
-                    <MudText Typo="Typo.caption">Preparation Steps</MudText>
-                    @for (int i = 0; i < PreparationSteps.Count; i++)
+                    <MudText Typo="Typo.caption">Ingredients</MudText>
+
+                    @foreach (var item in ingredients)
                     {
-                        <MudTextField Adornment="Adornment.Start" AdornmentText="@($"{i + 1}.")" Value="PreparationSteps[i]" ValueChanged="@((string value) => OnStepChanged(value, i))"/>
+                        <MudStack Row>
+                            <MudText>@($"{item.Material.Name} - {item.Quantity}")</MudText>
+                            <MudTooltip Text="Delete Ingredient">
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(() => OnDeleteIngredient(item.Id))" />
+                            </MudTooltip>
+                        </MudStack>
                     }
+                    <MudStack Row>
+                        <MudAutocomplete T="MaterialDto"
+                                         Variant="Variant.Outlined"
+                                         Label="Material"
+                                         Value="material"
+                                         ValueChanged="m => OnMaterialChanged(m)"
+                                         SearchFunc="SearchMaterials"
+                                         MinCharacters="0"
+                                         ToStringFunc="x => x.Name" />
+
+                        <MudTextField Label="Quantity" T="string" Variant="Variant.Outlined" @bind-Value="quantity" />
+                    </MudStack>
+
+                    <MudButton Variant="Variant.Outlined" OnClick="@(OnAddIngredient)" ButtonType="ButtonType.Button">Add Ingredient</MudButton>
+                </MudItem>
+
+                <MudItem xs="12" Class="d-flex gap-2 flex-column">
+                    <MudText Typo="Typo.caption">Preparation Steps</MudText>
+                    @foreach (var item in preparationSteps)
+                    {
+                        <MudStack Row>
+                            <MudText>@($"{item.Id}. {item.Step}")</MudText>
+                            <MudTooltip Text="Delete Ingredient">
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(() => OnDeletePreparationStep(item.Id))" />
+                            </MudTooltip>
+                        </MudStack>
+                    }
+                    <MudTextField Label="Preparation Step" T="string" Variant="Variant.Outlined" @bind-Value="preparationStep" />
                     <MudButton Variant="Variant.Outlined" OnClick="@(AddToSteps)" ButtonType="ButtonType.Button">Add Step</MudButton>
                 </MudItem>
             </MudGrid>
@@ -45,9 +91,16 @@
 
 @code {
     [CascadingParameter] public IMudDialogInstance MudDialog { get; set; }
+    [Parameter, EditorRequired] public List<MaterialDto> Materials { get; set; }
+    [Parameter, EditorRequired] public List<CategoryDto> Categories { get; set; }
 
     private RecipeDto Recipe { get; set; } = new();
-    private List<string> PreparationSteps { get; set; } = new();
+    private MaterialDto material { get; set; } = new();
+    private List<IngredientDto> ingredients { get; set; } = new();
+    private string quantity { get; set; }
+    private string preparationStep { get; set; } = "";
+    private CategoryDto category { get; set; } = null;
+    private List<PreparationStep> preparationSteps { get; set; } = new();
     private MudForm form = new();
 
     private async Task Save()
@@ -55,24 +108,99 @@
         await form.Validate();
         if (form.IsValid)
         {
-            Recipe.CategoryId = 2;
             Recipe.Description = "";
-            Recipe.Ingredients = new List<IngredientDto>() { new IngredientDto() { Id = 1, MaterialId = 1, Quantity = "3db" } };
             Recipe.ImageRef = "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&h=600&fit=crop";
-            Recipe.PreparationSteps = string.Join(", ", PreparationSteps);
+            Recipe.PreparationSteps = string.Join(", ", preparationSteps.Select(x => x.Step));
+            Recipe.Category = category;
+            Recipe.Ingredients = ingredients;
             await SwaggerClient.SaveAsync(Recipe);
             MudDialog.Close(DialogResult.Ok(Recipe));
         }
     }
 
-    private async Task OnStepChanged(string step, int index)
+    private async Task OnAddIngredient()
     {
-        PreparationSteps[index-1] = step;
+        if (material != null && !string.IsNullOrWhiteSpace(quantity))
+        {
+            var ingredient = new IngredientDto()
+            {
+                Quantity = quantity,
+                Material = material,
+                Id = ingredients.Count
+            };
+            ingredients.Add(ingredient);
+            quantity = "";
+            material = new();
+        }
+    }
+
+    private async Task OnDeleteIngredient(long id)
+    {
+        var selected = ingredients.FirstOrDefault(x => x.Id == id);
+        if (selected != null)
+        {
+            ingredients.Remove(selected);
+        }
+    }
+
+    private async Task OnDeletePreparationStep(int id)
+    {
+        var selected = preparationSteps.FirstOrDefault(x => x.Id == id);
+        if (selected != null)
+        {
+            preparationSteps.Remove(selected);
+        }
     }
 
     private async Task AddToSteps()
     {
-        PreparationSteps.Add("");
+        if (preparationStep != null)
+        {
+            var s = new PreparationStep()
+            {
+                Id = preparationSteps.Count,
+                Step = preparationStep
+            };
+            preparationSteps.Add(s);
+            preparationStep = "";
+        }
+    }
+
+    private async Task OnCategoryChanged(CategoryDto c)
+    {
+        if (c != null)
+        {
+            var selected = Categories.FirstOrDefault(x => x.Id == c.Id);
+            if (selected != null)
+            {
+                category = selected;
+            }
+        }
+    }
+
+    private async Task<IEnumerable<CategoryDto>> SearchCategories(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+            return Categories;
+        return Categories.Where(x => x.Name.ToLower().StartsWith(value.ToLower())).ToList();
+    }
+    private async Task OnMaterialChanged(MaterialDto m)
+    {
+        if (m != null)
+        {
+            var selected = Materials.FirstOrDefault(x => x.Id == m.Id);
+            if (selected != null)
+            {
+                material = selected;
+            }
+        }
+    }
+
+    private async Task<IEnumerable<MaterialDto>> SearchMaterials(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+            return Materials;
+        return Materials.Where(x => x.Name.ToLower().StartsWith(value.ToLower())).ToList();
     }
 
     private async Task Close()
@@ -80,4 +208,9 @@
         MudDialog.Close();
     }
 
+    public class PreparationStep
+    {
+        public int Id { get; set; }
+        public string Step { get; set; }
+    }
 }
