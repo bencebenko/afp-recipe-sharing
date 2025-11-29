@@ -62,7 +62,7 @@
 
         <MudItem xs="12" sm="8">
             <ul>
-                @if (recipe.Ingredients.Count > 0)
+                @if (recipe.Ingredients?.Count > 0)
                 {
                     @foreach (var item in recipe.Ingredients)
                     {
