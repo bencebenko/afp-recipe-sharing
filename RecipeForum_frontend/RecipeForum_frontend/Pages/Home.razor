@@ -33,13 +33,17 @@
                         <MudText Typo="Typo.body2">@($"{item.Portion} - {item.CookTime}")</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
-                <MudCardMedia Image="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&h=600&fit=crop"  Height="250" />
+                <MudCardMedia Image="@item.ImageRef"  Height="250" />
                 <MudCardActions>
                     <MudTooltip Text="Like">
                         <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
                     </MudTooltip>
                     <MudTooltip Text="More">
-                        <MudIconButton Icon="@Icons.Material.Filled.Menu" OnClick="@(() => NavigateToRecipe(item.Id))" />
+                        <MudMenu Icon="@Icons.Material.Filled.Menu">
+                            <MudMenuItem Icon="@Icons.Material.Filled.FoodBank" OnClick="@(() => NavigateToRecipe(item.Id))">Details</MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Filled.Edit" IconColor="Color.Secondary" OnClick="@(() => OpenEditRecipeDialog(item))">Edit</MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => OpenDeleteDialog(item.Id))">Delete</MudMenuItem>
+                        </MudMenu>
                     </MudTooltip>
                 </MudCardActions>
             </MudCard>
@@ -66,14 +70,62 @@
 
     private async Task OpenAddRecipeDialog()
     {
-        var parameters = new DialogParameters();
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var materials = await SwaggerClient._1Async();
+        var categories = await SwaggerClient._2Async();
+        var parameters = new DialogParameters()
+        {
+            ["Materials"] = materials.ToList(),
+            ["Categories"] = categories.ToList()
+        };
+
+        var options = new DialogOptions() 
+        { 
+            CloseButton = true, 
+            MaxWidth = MaxWidth.Medium, 
+            FullWidth = true,
+            CloseOnEscapeKey = true
+        };
+
         var dialog = await DialogService.ShowAsync<AddRecipeDialog>("Add New Recipe", parameters, options);
         var result = await dialog.Result;
         if (!result.Canceled)
         {
             await LoadRecipesAsync();
             Snackbar.Add("Recipe added", Severity.Success);
+        }
+    }
+
+    private async Task OpenEditRecipeDialog(RecipeDto recipe)
+    {
+        var parameters = new DialogParameters()
+        {
+            ["Recipe"] = recipe
+        };
+        var options = new DialogOptions() 
+        {
+            CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true 
+        };
+        var dialog = await DialogService.ShowAsync<EditRecipeDialog>("Edit Recipe", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadRecipesAsync();
+            Snackbar.Add("Recipe saved", Severity.Success);
+        }
+    }
+
+    private async Task OpenDeleteDialog(long id)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Delete recipe",
+            "Are you sure you want to delete this recipe?",
+            yesText: "Delete", 
+            cancelText: "Cancel", 
+            options: new DialogOptions { FullWidth = true, CloseOnEscapeKey = true, CloseButton = true });
+        if (result.HasValue && result.Value)
+        {
+            await SwaggerClient.DeleteAsync(id);
+            Snackbar.Add("Recipe deleted", Severity.Success);
         }
     }
 
