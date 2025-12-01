@@ -21,8 +21,6 @@ public interface RecipeMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "ingredients", ignore = true)
-    @Mapping(target = "comments", ignore = true)
-    @Mapping(target = "favorites", ignore = true)
     Recipe toEntity(RecipeDto dto);
 
     IngredientDto ingredientToDto(Ingredient ingredient);
