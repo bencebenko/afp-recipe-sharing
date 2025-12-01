@@ -68,7 +68,7 @@
                     {
                         <MudStack Row>
                             <MudText>@($"{item.Id}. {item.Step}")</MudText>
-                            <MudTooltip Text="Delete Ingredient">
+                            <MudTooltip Text="Delete Preparation Step">
                                 <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(() => OnDeletePreparationStep(item.Id))" />
                             </MudTooltip>
                         </MudStack>
@@ -91,7 +91,7 @@
 
 @code{
     [CascadingParameter] public IMudDialogInstance MudDialog { get; set; }
-    [EditorRequired, Parameter] public RecipeDto Recipe { get; set; }
+    [Parameter, EditorRequired] public RecipeDto Recipe { get; set; }
     [Parameter, EditorRequired] public List<MaterialDto> Materials { get; set; }
     [Parameter, EditorRequired] public List<CategoryDto> Categories { get; set; }
 
@@ -103,11 +103,22 @@
     private List<PreparationStep> preparationSteps { get; set; } = new();
     private MudForm form = new();
 
+    protected override void OnInitialized()
+    {
+        if (Recipe != null)
+        {
+            category = Recipe.Category;
+            ingredients = Recipe.Ingredients.ToList();
+            preparationSteps = Recipe.PreparationSteps.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(x => new PreparationStep(x)).ToList();
+        }
+    }
+
     private async Task OnSubmit()
     {
         await form.Validate();
         if (form.IsValid)
         {
+            Recipe.PreparationSteps = string.Join("\n", preparationSteps.Select(x => $"{x.Id}. {x.Step}"));
             await SwaggerClient.SaveAsync(Recipe);
             MudDialog.Close(DialogResult.Ok(true));
         }
@@ -179,6 +190,7 @@
             return Categories;
         return Categories.Where(x => x.Name.ToLower().StartsWith(value.ToLower())).ToList();
     }
+
     private async Task OnMaterialChanged(MaterialDto m)
     {
         if (m != null)
@@ -200,12 +212,22 @@
 
     private async Task Close()
     {
-        MudDialog.Close();
+        MudDialog.Cancel();
     }
 
     public class PreparationStep
     {
         public int Id { get; set; }
         public string Step { get; set; }
+
+        public PreparationStep()
+        { }
+
+        public PreparationStep(string prepstep)
+        {
+            string[] helper = prepstep.Split('.', StringSplitOptions.RemoveEmptyEntries);
+            Id = int.Parse(helper.First());
+            Step = helper.Last().TrimStart(' ');
+        }
     }
 }
