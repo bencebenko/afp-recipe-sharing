@@ -108,9 +108,8 @@
         await form.Validate();
         if (form.IsValid)
         {
-            Recipe.Description = "";
             Recipe.ImageRef = "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&h=600&fit=crop";
-            Recipe.PreparationSteps = string.Join(", ", preparationSteps.Select(x => x.Step));
+            Recipe.PreparationSteps = string.Join("\n", preparationSteps.Select(x => $"{x.Id}. {x.Step}"));
             Recipe.Category = category;
             Recipe.Ingredients = ingredients;
             await SwaggerClient.SaveAsync(Recipe);
@@ -184,6 +183,7 @@
             return Categories;
         return Categories.Where(x => x.Name.ToLower().StartsWith(value.ToLower())).ToList();
     }
+    
     private async Task OnMaterialChanged(MaterialDto m)
     {
         if (m != null)
@@ -205,7 +205,7 @@
 
     private async Task Close()
     {
-        MudDialog.Close();
+        MudDialog.Cancel();
     }
 
     public class PreparationStep
