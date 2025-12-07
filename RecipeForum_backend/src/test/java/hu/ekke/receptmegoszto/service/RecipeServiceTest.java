@@ -64,7 +64,6 @@ class RecipeServiceTest {
         RecipeDto inputDto = new RecipeDto();
         inputDto.setCategory(new CategoryDto(1L, null));
         IngredientDto ingDto = new IngredientDto();
-        // create MaterialDto using no-arg constructor and set id (MaterialDto has many fields now)
         MaterialDto matDto = new MaterialDto();
         matDto.setId(10L);
         ingDto.setMaterial(matDto);
@@ -177,4 +176,125 @@ class RecipeServiceTest {
     }
 
 
+    @Test
+    void testGetByCategory_ReturnsMappedDtos() {
+        RecipeRepository repo = context.mock(RecipeRepository.class);
+        RecipeMapper mapper = context.mock(RecipeMapper.class);
+        UserDetailsRepository userRepo = context.mock(UserDetailsRepository.class);
+        MaterialRepository materialRepo = context.mock(MaterialRepository.class);
+        CategoryRepository categoryRepo = context.mock(CategoryRepository.class);
+
+        RecipeService service = new RecipeService(repo, mapper, userRepo, materialRepo, categoryRepo);
+        Long categoryId = 5L;
+        Recipe recipeEntity = new Recipe();
+        RecipeDto recipeDto = new RecipeDto();
+
+        context.checking(new Expectations() {{
+            oneOf(repo).findByCategoryId(categoryId);
+            will(returnValue(List.of(recipeEntity)));
+
+            oneOf(mapper).toDto(recipeEntity);
+            will(returnValue(recipeDto));
+        }});
+
+        List<RecipeDto> result = service.getByCategory(categoryId);
+
+        assertEquals(1, result.size());
+        assertTrue(result.contains(recipeDto));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    void testSaveRecipe_ThrowsException_WhenUserNotFound() {
+        RecipeRepository repo = context.mock(RecipeRepository.class);
+        RecipeMapper mapper = context.mock(RecipeMapper.class);
+        UserDetailsRepository userRepo = context.mock(UserDetailsRepository.class);
+        MaterialRepository materialRepo = context.mock(MaterialRepository.class);
+        CategoryRepository categoryRepo = context.mock(CategoryRepository.class);
+
+        RecipeService service = new RecipeService(repo, mapper, userRepo, materialRepo, categoryRepo);
+        RecipeDto inputDto = new RecipeDto();
+        Principal principal = () -> "nonexistent";
+
+        context.checking(new Expectations() {{
+            oneOf(mapper).toEntity(inputDto);
+            will(returnValue(new Recipe()));
+
+            oneOf(userRepo).findByUserName("nonexistent");
+            will(returnValue(Optional.empty()));
+        }});
+
+        assertThrows(RuntimeException.class, () -> service.saveRecipe(inputDto, principal));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    void testSaveRecipe_ThrowsException_WhenCategoryNotFound() {
+        RecipeRepository repo = context.mock(RecipeRepository.class);
+        RecipeMapper mapper = context.mock(RecipeMapper.class);
+        UserDetailsRepository userRepo = context.mock(UserDetailsRepository.class);
+        MaterialRepository materialRepo = context.mock(MaterialRepository.class);
+        CategoryRepository categoryRepo = context.mock(CategoryRepository.class);
+
+        RecipeService service = new RecipeService(repo, mapper, userRepo, materialRepo, categoryRepo);
+
+        RecipeDto inputDto = new RecipeDto();
+        inputDto.setCategory(new CategoryDto(99L, null));
+        Principal principal = () -> "david";
+
+        context.checking(new Expectations() {{
+            oneOf(mapper).toEntity(inputDto);
+            will(returnValue(new Recipe()));
+
+            oneOf(userRepo).findByUserName("david");
+            will(returnValue(Optional.of(new RecipeUser())));
+
+            oneOf(categoryRepo).findById(99L);
+            will(returnValue(Optional.empty()));
+        }});
+
+        assertThrows(RuntimeException.class, () -> service.saveRecipe(inputDto, principal));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    void testSaveRecipe_ThrowsException_WhenMaterialNotFound() {
+        Mockery ctx = new Mockery();
+
+        RecipeRepository repo = ctx.mock(RecipeRepository.class);
+        RecipeMapper mapper = ctx.mock(RecipeMapper.class);
+        UserDetailsRepository userRepo = ctx.mock(UserDetailsRepository.class);
+        MaterialRepository materialRepo = ctx.mock(MaterialRepository.class);
+        CategoryRepository categoryRepo = ctx.mock(CategoryRepository.class);
+
+        RecipeService service = new RecipeService(repo, mapper, userRepo, materialRepo, categoryRepo);
+
+        RecipeDto inputDto = new RecipeDto();
+        inputDto.setCategory(new CategoryDto(1L, null));
+
+        IngredientDto ingDto = new IngredientDto();
+        MaterialDto matDto = new MaterialDto();
+        matDto.setId(99L);
+        ingDto.setMaterial(matDto);
+        inputDto.setIngredients(List.of(ingDto));
+
+        Principal principal = () -> "david";
+
+        ctx.checking(new Expectations() {{
+            oneOf(mapper).toEntity(inputDto);
+            will(returnValue(new Recipe()));
+
+            oneOf(userRepo).findByUserName("david");
+            will(returnValue(Optional.of(new RecipeUser())));
+
+            oneOf(categoryRepo).findById(1L);
+            will(returnValue(Optional.of(new Category())));
+
+            oneOf(materialRepo).findById(99L);
+            will(returnValue(Optional.empty()));
+        }});
+
+        assertThrows(RuntimeException.class, () -> service.saveRecipe(inputDto, principal));
+        ctx.assertIsSatisfied();
+    }
 }
