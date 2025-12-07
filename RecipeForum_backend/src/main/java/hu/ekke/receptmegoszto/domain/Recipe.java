@@ -30,6 +30,7 @@ public class Recipe {
     @Column(name = "cook_time")
     private Integer cookTime;
 
+    @Column(name = "`portion`")
     private Integer portion;
 
     @Column(columnDefinition = "text")

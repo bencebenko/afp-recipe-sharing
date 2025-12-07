@@ -2,6 +2,7 @@ package hu.ekke.receptmegoszto.controller;
 
 import hu.ekke.receptmegoszto.dto.CategoryDto;
 import hu.ekke.receptmegoszto.service.CategoryService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ public class CategoryController {
     }
 
     @GetMapping
+    @Operation(operationId = "getAllCategories", summary = "List all categories") // <--- EZ A LÉNYEG
     public List<CategoryDto> getAll() {
         return service.getAll();
     }
