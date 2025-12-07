@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = RecipeController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class RecipeControllerTest {
-
+ 
     @Autowired
     private MockMvc mockMvc;
 
