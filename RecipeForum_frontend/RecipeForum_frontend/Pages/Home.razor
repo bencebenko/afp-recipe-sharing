@@ -71,7 +71,7 @@
 
     private List<RecipeDto> _allRecipesCache = new();
     private long? _currentSelectedCategoryId = null;
-
+    private long? _lastCachedCategoryId = null;
     private long? SelectedCategoryId
     {
         get => _currentSelectedCategoryId;
@@ -119,7 +119,8 @@
 
     private async Task LoadRecipesAsync(bool forceApiCall = false)
     {
-        if (forceApiCall || !_allRecipesCache.Any())
+        bool isCacheInvalid = !_allRecipesCache.Any() || _currentSelectedCategoryId != _lastCachedCategoryId;
+        if (forceApiCall || isCacheInvalid)
         {
             if (_currentSelectedCategoryId == null)
             {
@@ -129,6 +130,7 @@
             {
                 _allRecipesCache = (await SwaggerClient.GetByCategoryAsync(_currentSelectedCategoryId.Value)).ToList();
             }
+            _lastCachedCategoryId = _currentSelectedCategoryId;
         }
         await FilterRecipesAsync();
     }
