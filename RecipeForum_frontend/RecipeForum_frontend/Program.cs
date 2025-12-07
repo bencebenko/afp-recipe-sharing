@@ -32,6 +32,7 @@ namespace RecipeForum_frontend
             builder.Services.AddScoped<CookieHandler>();
             builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthenticationStateProvider>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<CategoryFilterState>();
             builder.Services.AddCascadingAuthenticationState();
 
             builder.Services.AddScoped<IRequestService, RequestService>();

@@ -1,15 +1,17 @@
-﻿@inject NavigationManager NavigationManager
+﻿@using RecipeForum_frontend.Infrastructure
+@inject NavigationManager Navigation
+@inject CategoryFilterState CategoryFilterState
 
 <MudToolBar Gutters="true" Style="width: 100%;">
-    <MudButton Href="/" StartIcon="@Icons.Material.Outlined.DinnerDining">
+    <MudButton OnClick="@(() => ResetAndNavigateToHome())" StartIcon="@Icons.Material.Outlined.DinnerDining">
         <MudHidden Breakpoint="Breakpoint.SmAndDown">RecipeSharing</MudHidden>
     </MudButton>
 
     <MudHidden Breakpoint="Breakpoint.SmAndDown">
         <MudSpacer />
         <MudNavMenu Class="nav-text d-md-flex mx-2">
-            <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
-            <MudNavLink OnClick="@(() => NavigationManager.NavigateTo("/Categories"))" Icon="@Icons.Material.Filled.Interests">Categories</MudNavLink>
+            <MudNavLink OnClick="@(() => ResetAndNavigateToHome())" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
+            <MudNavLink OnClick="CategoryFilterState.ToggleFilter" Icon="@Icons.Material.Filled.Interests">Categories</MudNavLink>
         </MudNavMenu>
     </MudHidden>
 
@@ -67,5 +69,11 @@
     private void ToggleMobileSearch()
     {
         _showMobileSearch = !_showMobileSearch;
+    }
+
+    private void ResetAndNavigateToHome()
+    {
+        CategoryFilterState.ResetFilter();
+        Navigation.NavigateTo("/");
     }
 }

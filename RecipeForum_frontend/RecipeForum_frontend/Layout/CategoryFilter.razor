@@ -1,0 +1,45 @@
+﻿<MudPaper Class="pa-2">
+    <MudItem xs="12" Class="d-flex justify-center">
+        <MudText Typo="Typo.h6" Class="mb-3">
+            Categories:
+        </MudText>
+    </MudItem>
+    <MudPaper Class="d-flex pa-2 gap-4 flex-wrap justify-center align-center" Elevation="0">
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   OnClick="SelectAllRecipes"
+                   StartIcon="@Icons.Material.Filled.MenuBook">
+            All Recipes
+        </MudButton>
+
+        @foreach (var category in Categories)
+        {
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => SelectCategory(category.Id))"> @category.Name</MudButton>
+        }
+
+        <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="CloseFilter" StartIcon="@Icons.Material.Filled.Close"></MudButton>
+    </MudPaper>
+</MudPaper>
+@code {
+    [Parameter]
+    public List<CategoryDto> Categories { get; set; } = new();
+    [Parameter]
+    public EventCallback<long?> OnCategorySelected { get; set; }
+    [Parameter]
+    public EventCallback OnCloseFilter { get; set; }
+
+    private Task SelectAllRecipes()
+    {
+        return OnCategorySelected.InvokeAsync(null);
+    }
+
+    private Task SelectCategory(long categoryId)
+    {
+        return OnCategorySelected.InvokeAsync(categoryId);
+    }
+
+    private Task CloseFilter()
+    {
+        return OnCloseFilter.InvokeAsync();
+    }
+}

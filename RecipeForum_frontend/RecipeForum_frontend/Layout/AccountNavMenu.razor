@@ -4,6 +4,7 @@
 @inject AuthenticationStateProvider AuthProvider 
 @inject IUserService userService 
 @inject NavigationManager Navigation
+@inject CategoryFilterState CategoryFilterState
 
 
 <AuthorizeView>
@@ -31,37 +32,35 @@
         } 
     } 
 
-    private List<RecipeDto> recipes { get; set; } 
-    private bool IsLoggedIn = false; 
-    protected override async Task OnInitializedAsync() 
-    { 
-        await LoadRecipesAsync(); IsLoggedIn = await userService.IsUserLoggedIn(); 
-    } 
-    
-    private async Task LoadRecipesAsync() 
-    { 
-        recipes = new(); 
-        var result = await SwaggerClient.GetAllAsync(); 
-        recipes = result?.ToList() ?? new(); 
-    } 
-    
-    private async Task OpenAddRecipeDialog() 
-    { 
-        var parameters = new DialogParameters();
-        var options = new DialogOptions() 
-        { 
+    private async Task OpenAddRecipeDialog()
+    {
+        var materials = await SwaggerClient.GetAllMaterialsAsync();
+        var categories = await SwaggerClient.GetAllCategoriesAsync();
+
+        var parameters = new DialogParameters()
+        {
+            ["Materials"] = materials.ToList(),
+            ["Categories"] = categories.ToList()
+        };
+
+        var options = new DialogOptions()
+        {
             CloseButton = true,
             MaxWidth = MaxWidth.Medium,
-            FullWidth = true 
+            FullWidth = true
         };
-        var dialog = await DialogService.ShowAsync<AddRecipeDialog>("Add New Recipe", parameters, options); 
+        var dialog = await DialogService.ShowAsync<AddRecipeDialog>("Add New Recipe", parameters, options);
         var result = await dialog.Result;
-        
-        if (!result.Canceled) 
+
+        if (!result.Canceled)
         {
-            await LoadRecipesAsync();
+            CategoryFilterState.ResetFilter();
             Snackbar.Add("Recipe added", Severity.Success);
-        }     
-    } 
+            if (Navigation.ToBaseRelativePath(Navigation.Uri) != "")
+            {
+                Navigation.NavigateTo("/");
+            }
+        }
+    }
 
 }

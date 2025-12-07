@@ -1,7 +1,9 @@
 ﻿@page "/"
+@using RecipeForum_frontend.Infrastructure
 @using RecipeForum_frontend.Dialogs
 @inject NavigationManager NavigationManager
 @inject IUserService userService
+@inject CategoryFilterState CategoryFilterState
 
 <style>
     .card:hover{
@@ -21,6 +23,17 @@
     </MudGrid>
     <MudDivider Class="my-6" />
 }
+
+@if (CategoryFilterState.ShowFilter)
+{
+    <MudItem xs="12">
+        <CategoryFilter Categories="categories"
+                                    OnCategorySelected="OnCategoryChanged"
+                                    OnCloseFilter="CategoryFilterState.ToggleFilter"/>
+    </MudItem>
+    <MudDivider Class="my-6" />
+}
+
 <MudGrid Class="d-flex flex-wrap">
     
     @foreach (RecipeDto item in recipes)
@@ -52,20 +65,50 @@
 </MudGrid>
     
 @code{
-    private List<RecipeDto> recipes { get; set; }
+    private List<RecipeDto> recipes { get; set; } = new();
+    private List<CategoryDto> categories = new();
+    private long? SelectedCategoryId = null;
     private bool IsLoggedIn = false;
 
     protected override async Task OnInitializedAsync()
     {
+        CategoryFilterState.OnChange += StateHasChanged;
+        CategoryFilterState.OnFilterReset += ResetAndLoadAll;
+
         await LoadRecipesAsync();
+        categories = (await SwaggerClient.GetAllCategoriesAsync()).ToList();
         IsLoggedIn = await userService.IsUserLoggedIn();
+    }
+
+    public void Dispose()
+    {
+        CategoryFilterState.OnChange -= StateHasChanged;
+        CategoryFilterState.OnFilterReset += ResetAndLoadAll;
+    }
+
+    private async void ResetAndLoadAll()
+    {
+        SelectedCategoryId = null;
+        await InvokeAsync(LoadRecipesAsync);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnCategoryChanged(long? categoryId)
+    {
+        SelectedCategoryId = categoryId;
+        await LoadRecipesAsync();
     }
 
     private async Task LoadRecipesAsync()
     {
-        recipes = new();
-        var result = await SwaggerClient.GetAllAsync();
-        recipes = result?.ToList() ?? new();
+        if (SelectedCategoryId == null)
+        {
+            recipes = (await SwaggerClient.GetAllAsync()).ToList();
+        }
+        else
+        {
+            recipes = (await SwaggerClient.GetByCategoryAsync(SelectedCategoryId.Value)).ToList();
+        }
     }
 
     private async Task OpenAddRecipeDialog()
