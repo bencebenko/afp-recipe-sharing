@@ -81,6 +81,16 @@ class UserControllerTest {
     }
 
     @Test
+    void getCurrentUser_ShouldReturnNotFound_WhenUserNotInRepository() throws Exception {
+        String username = "ghostuser";
+        Principal mockPrincipal = Mockito.mock(Principal.class);
+        Mockito.when(mockPrincipal.getName()).thenReturn(username);
+        Mockito.when(repository.findByUserName(username)).thenReturn(Optional.empty());
+        mockMvc.perform(get("/user").principal(mockPrincipal))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void getCurrentUser_ShouldReturnUserDto_WhenUserIsAuthenticated() throws Exception {
         String username = "testuser";
         RecipeUser user = new RecipeUser();
