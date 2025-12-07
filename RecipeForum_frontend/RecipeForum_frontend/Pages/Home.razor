@@ -70,8 +70,8 @@
 
     private async Task OpenAddRecipeDialog()
     {
-        var materials = await SwaggerClient._1Async();
-        var categories = await SwaggerClient._2Async();
+        var materials = await SwaggerClient.GetAllMaterialsAsync();
+        var categories = await SwaggerClient.GetAllCategoriesAsync();
         var parameters = new DialogParameters()
         {
             ["Materials"] = materials.ToList(),
