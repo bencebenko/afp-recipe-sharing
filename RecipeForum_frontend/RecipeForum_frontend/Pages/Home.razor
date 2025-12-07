@@ -4,6 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject IUserService userService
 @inject CategoryFilterState CategoryFilterState
+@inject SearchState SearchState
 
 <style>
     .card:hover{
@@ -67,13 +68,23 @@
 @code{
     private List<RecipeDto> recipes { get; set; } = new();
     private List<CategoryDto> categories = new();
-    private long? SelectedCategoryId = null;
+
+    private List<RecipeDto> _allRecipesCache = new();
+    private long? _currentSelectedCategoryId = null;
+
+    private long? SelectedCategoryId
+    {
+        get => _currentSelectedCategoryId;
+        set => _currentSelectedCategoryId = value;
+    }
+
     private bool IsLoggedIn = false;
 
     protected override async Task OnInitializedAsync()
     {
         CategoryFilterState.OnChange += StateHasChanged;
         CategoryFilterState.OnFilterReset += ResetAndLoadAll;
+        SearchState.OnChange += OnSearchStateChanged;
 
         await LoadRecipesAsync();
         categories = (await SwaggerClient.GetAllCategoriesAsync()).ToList();
@@ -84,31 +95,60 @@
     {
         CategoryFilterState.OnChange -= StateHasChanged;
         CategoryFilterState.OnFilterReset += ResetAndLoadAll;
+        SearchState.OnChange -= OnSearchStateChanged;
+    }
+
+    private async void OnSearchStateChanged()
+    {
+        await FilterRecipesAsync();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async void ResetAndLoadAll()
     {
-        SelectedCategoryId = null;
-        await InvokeAsync(LoadRecipesAsync);
+        _currentSelectedCategoryId = null;
+        await LoadRecipesAsync(forceApiCall: true);
         await InvokeAsync(StateHasChanged);
     }
 
     private async Task OnCategoryChanged(long? categoryId)
     {
-        SelectedCategoryId = categoryId;
-        await LoadRecipesAsync();
+        _currentSelectedCategoryId = categoryId;
+        await LoadRecipesAsync(forceApiCall: true);
     }
 
-    private async Task LoadRecipesAsync()
+    private async Task LoadRecipesAsync(bool forceApiCall = false)
     {
-        if (SelectedCategoryId == null)
+        if (forceApiCall || !_allRecipesCache.Any())
         {
-            recipes = (await SwaggerClient.GetAllAsync()).ToList();
+            if (_currentSelectedCategoryId == null)
+            {
+                _allRecipesCache = (await SwaggerClient.GetAllAsync()).ToList();
+            }
+            else
+            {
+                _allRecipesCache = (await SwaggerClient.GetByCategoryAsync(_currentSelectedCategoryId.Value)).ToList();
+            }
+        }
+        await FilterRecipesAsync();
+    }
+
+    private Task FilterRecipesAsync()
+    {
+        string searchTerm = SearchState.CurrentSearchTerm?.Trim() ?? string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            recipes = _allRecipesCache
+                .Where(r => r.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
         else
         {
-            recipes = (await SwaggerClient.GetByCategoryAsync(SelectedCategoryId.Value)).ToList();
+            recipes = _allRecipesCache.ToList();
         }
+
+        return Task.CompletedTask;
     }
 
     private async Task OpenAddRecipeDialog()
@@ -133,7 +173,7 @@
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            await LoadRecipesAsync();
+            await LoadRecipesAsync(forceApiCall: true);
             Snackbar.Add("Recipe added", Severity.Success);
         }
     }
@@ -152,7 +192,7 @@
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            await LoadRecipesAsync();
+            await LoadRecipesAsync(forceApiCall: true);
             Snackbar.Add("Recipe saved", Severity.Success);
         }
     }
@@ -169,6 +209,7 @@
         {
             await SwaggerClient.DeleteAsync(id);
             Snackbar.Add("Recipe deleted", Severity.Success);
+            await LoadRecipesAsync(forceApiCall: true);
         }
     }
 
