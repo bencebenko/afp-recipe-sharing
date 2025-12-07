@@ -154,4 +154,27 @@ class RecipeServiceTest {
     }
 
 
+    @Test
+    void testGetById_ReturnsNull_WhenNotFound() {
+        RecipeRepository repo = context.mock(RecipeRepository.class);
+        RecipeMapper mapper = context.mock(RecipeMapper.class);
+        UserDetailsRepository userRepo = context.mock(UserDetailsRepository.class);
+        MaterialRepository materialRepo = context.mock(MaterialRepository.class);
+        CategoryRepository categoryRepo = context.mock(CategoryRepository.class);
+
+        RecipeService service = new RecipeService(repo, mapper, userRepo, materialRepo, categoryRepo);
+        Long nonExistentId = 99L;
+
+        context.checking(new Expectations() {{
+            oneOf(repo).findById(nonExistentId);
+            will(returnValue(Optional.empty()));
+        }});
+
+        RecipeDto result = service.getById(nonExistentId);
+
+        assertNull(result);
+        context.assertIsSatisfied();
+    }
+
+
 }
