@@ -76,6 +76,11 @@ class UserControllerTest {
     }
 
     @Test
+    void getCurrentUser_ShouldReturnUnauthorized_WhenPrincipalIsNull() throws Exception {
+        mockMvc.perform(get("/user")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void getCurrentUser_ShouldReturnUserDto_WhenUserIsAuthenticated() throws Exception {
         String username = "testuser";
         RecipeUser user = new RecipeUser();
