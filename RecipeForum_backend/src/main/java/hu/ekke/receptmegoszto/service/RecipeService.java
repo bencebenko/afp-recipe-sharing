@@ -80,6 +80,13 @@ public class RecipeService {
     }
 
     @Transactional(readOnly = true)
+    public List<RecipeDto> getByCategory(Long categoryId) {
+        return repository.findByCategoryId(categoryId).stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public RecipeDto getById(Long id) {
         return repository.findById(id)
                 .map(mapper::toDto)
