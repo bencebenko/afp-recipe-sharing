@@ -125,4 +125,33 @@ class RecipeServiceTest {
         service.deleteRecipe(42L);
         context.assertIsSatisfied();
     }
+
+    @Test
+    void testGetById_ReturnsMappedDto_WhenFound() {
+        RecipeRepository repo = context.mock(RecipeRepository.class);
+        RecipeMapper mapper = context.mock(RecipeMapper.class);
+        UserDetailsRepository userRepo = context.mock(UserDetailsRepository.class);
+        MaterialRepository materialRepo = context.mock(MaterialRepository.class);
+        CategoryRepository categoryRepo = context.mock(CategoryRepository.class);
+
+        RecipeService service = new RecipeService(repo, mapper, userRepo, materialRepo, categoryRepo);
+        Long recipeId = 12L;
+        Recipe recipeEntity = new Recipe();
+        RecipeDto expectedDto = new RecipeDto();
+
+        context.checking(new Expectations() {{
+            oneOf(repo).findById(recipeId);
+            will(returnValue(Optional.of(recipeEntity)));
+
+            oneOf(mapper).toDto(recipeEntity);
+            will(returnValue(expectedDto));
+        }});
+
+        RecipeDto result = service.getById(recipeId);
+
+        assertSame(expectedDto, result);
+        context.assertIsSatisfied();
+    }
+
+
 }
