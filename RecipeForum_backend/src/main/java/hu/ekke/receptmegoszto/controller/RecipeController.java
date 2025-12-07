@@ -25,6 +25,11 @@ public class RecipeController {
         return service.getAll();
     }
 
+    @GetMapping("/bycategory")
+    public List<RecipeDto> getByCategory(@RequestParam Long categoryId) {
+        return service.getByCategory(categoryId);
+    }
+
     @GetMapping("/{id}")
     public RecipeDto getById(@PathVariable Long id) {
         return service.getById(id);
