@@ -33,6 +33,7 @@ namespace RecipeForum_frontend
             builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthenticationStateProvider>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<CategoryFilterState>();
+            builder.Services.AddScoped<SearchState>();
             builder.Services.AddCascadingAuthenticationState();
 
             builder.Services.AddScoped<IRequestService, RequestService>();
