@@ -1,4 +1,6 @@
-﻿@inject NavigationManager Navigation
+﻿@using RecipeForum_frontend.Infrastructure
+@inject NavigationManager Navigation
+@inject CategoryFilterState CategoryFilterState
 ﻿
 <MudAppBar Elevation="25" Fixed="true" class="appbar-blurred">
     <MudToolBar Gutters="true" Style="width: 100%;">
@@ -8,8 +10,8 @@
 
 <MudDrawer @bind-Open="_drawerOpen" Elevation="2" Anchor="Anchor.Right" ClipMode="DrawerClipMode.Always" Class="d-md-none">
     <MudNavMenu Class="nav-text flex-column pa-4">
-        <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
-        <MudNavLink Href="/Categories" Icon="@Icons.Material.Filled.Interests">Categories</MudNavLink>
+        <MudNavLink OnClick="@(() => ResetAndNavigateToHome())" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
+        <MudNavLink OnClick="CategoryFilterState.ToggleFilter" Icon="@Icons.Material.Filled.Interests">Categories</MudNavLink>
         <MudDivider Class="my-2" />
         <AccountNavMenu />
     </MudNavMenu>
@@ -30,6 +32,11 @@
     private void ToggleDrawer()
     {
         _drawerOpen = !_drawerOpen;
+    }
+    private void ResetAndNavigateToHome()
+    {
+        CategoryFilterState.ResetFilter();
+        Navigation.NavigateTo("/");
     }
 
 }
