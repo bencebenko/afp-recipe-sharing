@@ -1,6 +1,7 @@
 ﻿@using RecipeForum_frontend.Infrastructure
 @inject NavigationManager Navigation
 @inject CategoryFilterState CategoryFilterState
+@inject SearchState SearchState
 
 <MudToolBar Gutters="true" Style="width: 100%;">
     <MudButton OnClick="@(() => ResetAndNavigateToHome())" StartIcon="@Icons.Material.Outlined.DinnerDining">
@@ -19,16 +20,16 @@
 
     @*Searchbar starts here...*@
     <MudHidden Breakpoint="Breakpoint.Xs">
-        <MudTextField @bind-Value="Search" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End"
+        <MudTextField @bind-Value="SearchValue" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End"
                       AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Dark"
-                      Class="flex-shrink-1" Style="min-width: 150px; max-width: 300px; width: 30vw;" />
+                      Class="flex-shrink-1" Style="min-width: 150px; max-width: 300px; width: 30vw;" Immediate="true" />
     </MudHidden>
 
     <MudHidden Breakpoint="Breakpoint.SmAndUp">
         @if (_showMobileSearch)
         {
-            <MudTextField @bind-Value="Search" Placeholder="Searching..." Variant="Variant.Outlined" FullWidth="true"
-                          Class="mx-2" Style="width: 100%;" />
+            <MudTextField @bind-Value="SearchValue" Placeholder="Searching..." Variant="Variant.Outlined" FullWidth="true"
+                          Class="mx-2" Style="width: 100%;" Immediate="true" />
 
             <MudIconButton Icon="@Icons.Material.Filled.Close" Edge="Edge.End" OnClick="ToggleMobileSearch" />
         }
@@ -63,16 +64,35 @@
     [Parameter]
     public EventCallback OnToggleDrawer { get; set; }
 
-    public string Search { get; set; }
+    private string _searchValue = string.Empty;
+    public string SearchValue
+    {
+        get => _searchValue;
+        set
+        {
+            if (_searchValue != value)
+            {
+                _searchValue = value;
+                SearchState.SetSearchTerm(value);
+            }
+        }
+    }
+
     private bool _showMobileSearch = false;
 
     private void ToggleMobileSearch()
     {
         _showMobileSearch = !_showMobileSearch;
+
+        if (!_showMobileSearch)
+        {
+            SearchValue = string.Empty;
+        }
     }
 
     private void ResetAndNavigateToHome()
     {
+        SearchValue = string.Empty;
         CategoryFilterState.ResetFilter();
         Navigation.NavigateTo("/");
     }
