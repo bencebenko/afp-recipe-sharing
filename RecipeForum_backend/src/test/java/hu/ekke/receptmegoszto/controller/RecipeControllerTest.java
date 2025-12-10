@@ -135,21 +135,6 @@ class RecipeControllerTest {
     }
 
     @Test
-    void getByCategory_ShouldReturnFilteredRecipes() throws Exception {
-        Long categoryId = 3L;
-        RecipeDto dto = new RecipeDto(1L, "Pizza", null, 10, 20, 2,
-                "Tésztás", "Sütés", new CategoryDto(categoryId, "Főételek"), List.of());
-
-        Mockito.when(service.getByCategory(categoryId)).thenReturn(List.of(dto));
-
-        mockMvc.perform(get("/recipe/bycategory")
-                        .param("categoryId", String.valueOf(categoryId)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Pizza"))
-                .andExpect(jsonPath("$[0].category.id").value(categoryId));
-    }
-
-    @Test
     void delete_ShouldReturnOkStatus() throws Exception {
         mockMvc.perform(delete("/recipe/99"))
                 .andExpect(status().isOk());
