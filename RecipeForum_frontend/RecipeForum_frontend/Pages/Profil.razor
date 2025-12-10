@@ -78,4 +78,25 @@
     {
         NavigationManager.NavigateTo($"/Recipe/{recipeId}");
     }
+
+    private async Task OpenEditRecipeDialog(RecipeDto recipe)
+    {
+        var parameters = new DialogParameters()
+        {
+            ["Recipe"] = recipe
+        };
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true
+        };
+        var dialog = await DialogService.ShowAsync<EditRecipeDialog>("Edit Recipe", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadMyRecipes();
+            Snackbar.Add("Recipe saved", Severity.Success);
+        }
+    }
 }
