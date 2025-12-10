@@ -3,4 +3,24 @@
 
 @code {
 
+    private bool isLoading = true;
+    private List<RecipeDto> myRecipes = new();
+
+    private async Task LoadMyRecipes()
+    {
+        try
+        {
+            isLoading = true;
+            var allRecipes = await SwaggerClient.GetAllAsync();
+            myRecipes = allRecipes.ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Hiba a receptek betöltésekor: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
 }
