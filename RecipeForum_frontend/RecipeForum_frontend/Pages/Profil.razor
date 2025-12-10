@@ -99,4 +99,20 @@
             Snackbar.Add("Recipe saved", Severity.Success);
         }
     }
+
+    private async Task OpenDeleteDialog(long id)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Delete recipe",
+            "Are you sure you want to delete this recipe?",
+            yesText: "Delete",
+            cancelText: "Cancel",
+            options: new DialogOptions { FullWidth = true, CloseOnEscapeKey = true, CloseButton = true });
+        if (result.HasValue && result.Value)
+        {
+            await SwaggerClient.DeleteAsync(id);
+            Snackbar.Add("Recipe deleted", Severity.Success);
+            await LoadMyRecipes();
+        }
+    }
 }
