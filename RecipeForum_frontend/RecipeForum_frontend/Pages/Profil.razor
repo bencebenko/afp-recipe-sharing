@@ -40,7 +40,6 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error checking auth state: {ex.Message}");
-            // As a final fallback attempt the service
             try
             {
                 IsUserLoggedIn = await userService.IsUserLoggedIn();
@@ -51,8 +50,7 @@
             }
         }
 
-        // Ha nincs bejelentkezve, átirányíthatjuk (opcionális)
-        // if (!IsUserLoggedIn) NavigationManager.NavigateTo("/login");
+        if (!IsUserLoggedIn) NavigationManager.NavigateTo("/login");
 
         await LoadMyRecipes();
     }
@@ -74,5 +72,10 @@
         {
             isLoading = false;
         }
+    }
+
+    private void NavigateToRecipe(long recipeId)
+    {
+        NavigationManager.NavigateTo($"/Recipe/{recipeId}");
     }
 }
