@@ -115,4 +115,18 @@
             await LoadMyRecipes();
         }
     }
+
+    private UserDto CurrentUser;
+
+    private async Task GetCurrentUserAsync()
+    {
+        try
+        {
+            UserDto userDto = await SwaggerClient.GetCurrentUserAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Hiba a felhasználó adatainak betöltésekor: {ex.Message}");
+        }
+    }
 }
