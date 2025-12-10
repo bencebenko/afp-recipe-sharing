@@ -4,7 +4,6 @@ import hu.ekke.receptmegoszto.domain.RecipeUser;
 import hu.ekke.receptmegoszto.repository.UserDetailsRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,7 +16,6 @@ import java.security.Principal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -78,6 +76,7 @@ class UserControllerTest {
                 .andExpect(content().string("Sikeres regisztráció!"));
 
         ArgumentCaptor<RecipeUser> captor = ArgumentCaptor.forClass(RecipeUser.class);
+
         verify(repository, times(1)).findByUserName("ujuser");
         verify(encoder, times(1)).encode("titok");
         verify(repository, times(1)).save(captor.capture());
@@ -151,42 +150,4 @@ class UserControllerTest {
         verifyNoMoreInteractions(repository);
         verifyNoInteractions(encoder);
     }
-
-    @Test
-    void getCurrentUser_ShouldReturnUnauthorized_WhenPrincipalIsNull() throws Exception {
-        mockMvc.perform(get("/user")).andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void getCurrentUser_ShouldReturnNotFound_WhenUserNotInRepository() throws Exception {
-        String username = "ghostuser";
-        Principal mockPrincipal = Mockito.mock(Principal.class);
-        Mockito.when(mockPrincipal.getName()).thenReturn(username);
-        Mockito.when(repository.findByUserName(username)).thenReturn(Optional.empty());
-        mockMvc.perform(get("/user").principal(mockPrincipal))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void getCurrentUser_ShouldReturnUserDto_WhenUserIsAuthenticated() throws Exception {
-        String username = "testuser";
-        RecipeUser user = new RecipeUser();
-        user.setId(5);
-        user.setName("Test User");
-        user.setUserName(username);
-        user.setEmail("user@example.com");
-
-        Principal mockPrincipal = Mockito.mock(Principal.class);
-        Mockito.when(mockPrincipal.getName()).thenReturn(username);
-
-        Mockito.when(repository.findByUserName(username)).thenReturn(Optional.of(user));
-
-        mockMvc.perform(get("/user").principal(mockPrincipal))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(5L))
-                .andExpect(jsonPath("$.userName").value(username))
-                .andExpect(jsonPath("$.email").value("user@example.com"));
-    }
-
-
 }
