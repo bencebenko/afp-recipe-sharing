@@ -11,11 +11,43 @@
 
 <h3>Profil</h3>
 
+
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+
+    <MudPaper Elevation="0" Outlined="true" Class="pa-6 mb-6 rounded-lg">
+        <MudGrid Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudItem xs="12" sm="3" md="2" Class="d-flex justify-center">
+                <MudImage Src="/profil.jpg" Style="height:130px; width:130px; font-size:2rem;" Class="rounded-circle" />
+            </MudItem>
+            <MudItem xs="12" sm="9" md="10">
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.h4" Style="font-weight:bold;">@CurrentUser.Name (@CurrentUser.UserName)</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">@CurrentUser.Email</MudText>
+
+                    <MudStack Row="true" Class="my-3" Spacing="1">
+                        <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6" Style="font-weight:bold;">@myRecipes.Count</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Recipes</MudText>
+                        </MudStack>
+
+                    </MudStack>
+
+
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+
+</MudContainer>
+
+
 @code {
 
     private bool isLoading = true;
     private List<RecipeDto> myRecipes = new();
-
+    private UserDto CurrentUser { get; set; }
     private bool IsUserLoggedIn = false;
 
     protected override async Task OnInitializedAsync()
@@ -52,6 +84,7 @@
 
         if (!IsUserLoggedIn) NavigationManager.NavigateTo("/login");
 
+        await GetCurrentUserAsync();
         await LoadMyRecipes();
     }
 
@@ -116,17 +149,25 @@
         }
     }
 
-    private UserDto CurrentUser;
 
     private async Task GetCurrentUserAsync()
     {
         try
         {
-            UserDto userDto = await SwaggerClient.GetCurrentUserAsync();
+            CurrentUser = await SwaggerClient.GetCurrentUserAsync();
+
+        }
+        catch (ApiException ex) when (ex.StatusCode == 401)
+        {
+            // Ha a felhasználó nem hitelesített, a szerver 401-et dobhat
+            IsUserLoggedIn = false;
+            CurrentUser = null;
+            NavigationManager.NavigateTo("http://localhost:8080/login");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Hiba a felhasználó adatainak betöltésekor: {ex.Message}");
+            CurrentUser = new UserDto { Name = "Hiba a betöltésben" };
         }
     }
 }
