@@ -1,10 +1,62 @@
 ﻿@page "/Profil"
+@using RecipeForum_frontend.Dialogs
+@using RecipeForum_frontend.Infrastructure
+@using RecipeForum_frontend.Generated
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+@inject IUserService userService
+@inject SwaggerClient SwaggerClient
+@inject AuthenticationStateProvider AuthStateProvider
+
+
 <h3>Profil</h3>
 
 @code {
 
     private bool isLoading = true;
     private List<RecipeDto> myRecipes = new();
+
+    private bool IsUserLoggedIn = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var isAuth = authState.User?.Identity?.IsAuthenticated ?? false;
+
+            var svcLoggedIn = false;
+            try
+            {
+                svcLoggedIn = await userService.IsUserLoggedIn();
+            }
+            catch
+            {
+
+            }
+
+            IsUserLoggedIn = isAuth || svcLoggedIn;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking auth state: {ex.Message}");
+            // As a final fallback attempt the service
+            try
+            {
+                IsUserLoggedIn = await userService.IsUserLoggedIn();
+            }
+            catch
+            {
+                IsUserLoggedIn = false;
+            }
+        }
+
+        // Ha nincs bejelentkezve, átirányíthatjuk (opcionális)
+        // if (!IsUserLoggedIn) NavigationManager.NavigateTo("/login");
+
+        await LoadMyRecipes();
+    }
+
 
     private async Task LoadMyRecipes()
     {
