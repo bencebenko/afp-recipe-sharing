@@ -10,7 +10,7 @@
 <AuthorizeView>
     @* USER MENU *@ 
     <Authorized>
-        <MudNavLink Href="/" Icon="@Icons.Material.Filled.PersonOutline">Profile</MudNavLink> @*Insert here profile page link*@ 
+        <MudNavLink Href="/Profil" Icon="@Icons.Material.Filled.PersonOutline">Profile</MudNavLink> @*Insert here profile page link*@ 
         <MudNavLink OnClick="@(() => OpenAddRecipeDialog())" Icon="@Icons.Material.Filled.Upload">Add Recipe</MudNavLink> @*Recipe dialog*@
         <MudDivider Class="my-2" /> 
         <MudNavLink Icon="@Icons.Material.Filled.Logout" OnClick=" Logout">Logout</MudNavLink>
