@@ -1,0 +1,224 @@
+﻿@page "/Profil"
+@using RecipeForum_frontend.Dialogs
+@using RecipeForum_frontend.Infrastructure
+@using RecipeForum_frontend.Generated
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+@inject IUserService userService
+@inject SwaggerClient SwaggerClient
+@inject AuthenticationStateProvider AuthStateProvider
+
+
+<style>
+    .card:hover {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        cursor: pointer;
+    }
+</style>
+
+<h3>Profil</h3>
+
+
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+
+    <MudPaper Elevation="0" Outlined="true" Class="pa-6 mb-6 rounded-lg">
+        <MudGrid Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudItem xs="12" sm="3" md="2" Class="d-flex justify-center">
+                <MudImage Src="/profil.jpg" Style="height:130px; width:130px; font-size:2rem;" Class="rounded-circle" />
+            </MudItem>
+            <MudItem xs="12" sm="9" md="10">
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.h4" Style="font-weight:bold;">@(CurrentUser?.Name ?? "") (@(CurrentUser?.UserName ?? ""))</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">@(CurrentUser?.Email ?? "")</MudText>
+
+                    <MudStack Row="true" Class="my-3" Spacing="1">
+                        <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6" Style="font-weight:bold;">@myRecipes.Count</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Recipes</MudText>
+                        </MudStack>
+
+                    </MudStack>
+
+
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="mt-4">
+
+        <MudTabPanel Text="@($"My recipes ({myRecipes.Count})")">
+            @if (isLoading)
+            {
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            }
+            else if (myRecipes.Any())
+            {
+                <MudGrid>
+                    @foreach (var recipe in myRecipes)
+                    {
+                        <MudItem xs="12" sm="4">
+                            <MudCard Class="card" onclick="@(() => NavigateToRecipe(recipe.Id))">
+                                <MudCardHeader>
+                                    <CardHeaderContent>
+                                        <MudText Typo="Typo.body1">@recipe.Name</MudText>
+                                        <MudText Typo="Typo.body2">@($"{recipe.Portion} - {recipe.CookTime}")</MudText>
+                                    </CardHeaderContent>
+                                </MudCardHeader>
+                                <MudCardMedia Image="@recipe.ImageRef" Height="250" />
+                                <MudCardActions>
+                                    <MudTooltip Text="More">
+                                        <MudMenu Icon="@Icons.Material.Filled.Menu">
+                                            <MudMenuItem Icon="@Icons.Material.Filled.FoodBank" OnClick="@(() => NavigateToRecipe(recipe.Id))">Details</MudMenuItem>
+                                            <MudMenuItem Icon="@Icons.Material.Filled.Edit" IconColor="Color.Secondary" OnClick="@(() => OpenEditRecipeDialog(recipe))">Edit</MudMenuItem>
+                                            <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => OpenDeleteDialog(recipe.Id))">Delete</MudMenuItem>
+                                        </MudMenu>
+                                    </MudTooltip>
+                                </MudCardActions>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
+            else
+            {
+                <MudText>No recipe.</MudText>
+            }
+        </MudTabPanel>
+
+
+    </MudTabs>
+
+</MudContainer>
+
+
+@code {
+
+    private bool isLoading = true;
+    private List<RecipeDto> myRecipes = new();
+    private UserDto CurrentUser { get; set; }
+    private bool IsUserLoggedIn = false;
+   
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var isAuth = authState.User?.Identity?.IsAuthenticated ?? false;
+
+            var svcLoggedIn = false;
+            try
+            {
+                svcLoggedIn = await userService.IsUserLoggedIn();
+            }
+            catch
+            {
+
+            }
+
+            IsUserLoggedIn = isAuth || svcLoggedIn;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking auth state: {ex.Message}");
+            try
+            {
+                IsUserLoggedIn = await userService.IsUserLoggedIn();
+            }
+            catch
+            {
+                IsUserLoggedIn = false;
+            }
+        }
+
+        if (!IsUserLoggedIn) NavigationManager.NavigateTo("/login");
+
+        await GetCurrentUserAsync();
+        await LoadMyRecipes();
+    }
+
+
+    private async Task LoadMyRecipes()
+    {
+        try
+        {
+            isLoading = true;
+            var allRecipes = await SwaggerClient.GetAllAsync();
+            myRecipes = allRecipes.ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Hiba a receptek betöltésekor: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void NavigateToRecipe(long recipeId)
+    {
+        NavigationManager.NavigateTo($"/Recipe/{recipeId}");
+    }
+
+    private async Task OpenEditRecipeDialog(RecipeDto recipe)
+    {
+        var parameters = new DialogParameters()
+        {
+            ["Recipe"] = recipe
+        };
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true
+        };
+        var dialog = await DialogService.ShowAsync<EditRecipeDialog>("Edit Recipe", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadMyRecipes();
+            Snackbar.Add("Recipe saved", Severity.Success);
+        }
+    }
+
+    private async Task OpenDeleteDialog(long id)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Delete recipe",
+            "Are you sure you want to delete this recipe?",
+            yesText: "Delete",
+            cancelText: "Cancel",
+            options: new DialogOptions { FullWidth = true, CloseOnEscapeKey = true, CloseButton = true });
+        if (result.HasValue && result.Value)
+        {
+            await SwaggerClient.DeleteAsync(id);
+            Snackbar.Add("Recipe deleted", Severity.Success);
+            await LoadMyRecipes();
+        }
+    }
+
+
+    private async Task GetCurrentUserAsync()
+    {
+        try
+        {
+            CurrentUser = await SwaggerClient.GetCurrentUserAsync();
+
+        }
+        catch (ApiException ex) when (ex.StatusCode == 401)
+        {
+            // Ha a felhasználó nem hitelesített, a szerver 401-et dobhat
+            IsUserLoggedIn = false;
+            CurrentUser = null;
+            NavigationManager.NavigateTo("http://localhost:8080/login");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Hiba a felhasználó adatainak betöltésekor: {ex.Message}");
+            CurrentUser = new UserDto { Name = "Hiba a betöltésben" };
+        }
+    }
+}
