@@ -35,35 +35,46 @@
     <MudDivider Class="my-6" />
 }
 
-<MudGrid Class="d-flex flex-wrap">
+@if (recipes.Any())
+{
+    <MudGrid Class="d-flex flex-wrap">
     
-    @foreach (RecipeDto item in recipes)
-    {
-        <MudItem xs="12" sm="4">
-            <MudCard Class="card" onclick="@(() => NavigateToRecipe(item.Id))">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.body1">@item.Name</MudText>
-                        <MudText Typo="Typo.body2">@($"{item.Portion} - {item.CookTime}")</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardMedia Image="@item.ImageRef"  Height="250" />
-                <MudCardActions>
-                    <MudTooltip Text="Like">
-                        <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
-                    </MudTooltip>
-                    <MudTooltip Text="More">
-                        <MudMenu Icon="@Icons.Material.Filled.Menu">
-                            <MudMenuItem Icon="@Icons.Material.Filled.FoodBank" OnClick="@(() => NavigateToRecipe(item.Id))">Details</MudMenuItem>
-                            <MudMenuItem Icon="@Icons.Material.Filled.Edit" IconColor="Color.Secondary" OnClick="@(() => OpenEditRecipeDialog(item))">Edit</MudMenuItem>
-                            <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => OpenDeleteDialog(item.Id))">Delete</MudMenuItem>
-                        </MudMenu>
-                    </MudTooltip>
-                </MudCardActions>
-            </MudCard>
+        @foreach (RecipeDto item in recipes)
+        {
+            <MudItem xs="12" sm="4">
+                <MudCard Class="card" onclick="@(() => NavigateToRecipe(item.Id))">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.body1">@item.Name</MudText>
+                            <MudText Typo="Typo.body2">@($"{item.Portion} - {item.CookTime}")</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardMedia Image="@item.ImageRef"  Height="250" />
+                    <MudCardActions>
+                        <MudTooltip Text="Like">
+                            <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
+                        </MudTooltip>
+                        <MudTooltip Text="More">
+                            <MudMenu Icon="@Icons.Material.Filled.Menu">
+                                <MudMenuItem Icon="@Icons.Material.Filled.FoodBank" OnClick="@(() => NavigateToRecipe(item.Id))">Details</MudMenuItem>
+                                <MudMenuItem Icon="@Icons.Material.Filled.Edit" IconColor="Color.Secondary" OnClick="@(() => OpenEditRecipeDialog(item))">Edit</MudMenuItem>
+                                <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => OpenDeleteDialog(item.Id))">Delete</MudMenuItem>
+                            </MudMenu>
+                        </MudTooltip>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+else
+{
+    
+        <MudItem xs="12" sm="6" md="4" Class="d-flex justify-content-center">
+            <MudAlert Severity="Severity.Info" Variant="Variant.Filled" Square="true" Class="my-2">No results found</MudAlert>
         </MudItem>
-    }
-</MudGrid>
+    
+}
     
 @code{
     private List<RecipeDto> recipes { get; set; } = new();
