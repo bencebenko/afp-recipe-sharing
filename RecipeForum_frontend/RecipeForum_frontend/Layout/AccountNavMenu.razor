@@ -12,14 +12,14 @@
     <Authorized>
         <MudNavLink Href="/Profil" Icon="@Icons.Material.Filled.PersonOutline">Profile</MudNavLink> @*Insert here profile page link*@ 
         <MudNavLink OnClick="@(() => OpenAddRecipeDialog())" Icon="@Icons.Material.Filled.Upload">Add Recipe</MudNavLink> @*Recipe dialog*@
-        <MudNavLink OnClick="@(() => OpenRegisterDialog())" Icon="@Icons.Material.Filled.AppRegistration">Register</MudNavLink>
+        <MudNavLink OnClick="@(() => OpenRegisterDialog())" Icon="@Icons.Material.Filled.PersonAddAlt">Register</MudNavLink>
         <MudDivider Class="my-2" />
         <MudNavLink Icon="@Icons.Material.Filled.Logout" OnClick=" Logout">Logout</MudNavLink>
     </Authorized> 
 
     @* GUEST MENU *@ 
     <NotAuthorized> 
-        <MudNavLink OnClick="@(() => OpenRegisterDialog())" Icon="@Icons.Material.Filled.AppRegistration">Register</MudNavLink>
+        <MudNavLink OnClick="@(() => OpenRegisterDialog())" Icon="@Icons.Material.Filled.PersonAddAlt">Register</MudNavLink>
         <MudNavLink Href="/Account" Icon="@Icons.Material.Filled.Login">Login</MudNavLink> 
      </NotAuthorized> 
 </AuthorizeView>
