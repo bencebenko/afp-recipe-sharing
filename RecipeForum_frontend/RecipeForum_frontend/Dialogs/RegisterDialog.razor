@@ -1,0 +1,66 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField Clearable Label="Name" @bind-Value="User.Name" Variant="Variant.Outlined" Required="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField Clearable Label="Username" @bind-Value="User.UserName" Variant="Variant.Outlined" Required="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField Clearable Label="Email" @bind-Value="User.Email" InputType="InputType.Email" Variant="Variant.Outlined" Required="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField Clearable Label="Password" @bind-Value="User.Password" InputType="InputType.Password" Variant="Variant.Outlined" Required="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField Clearable Label="Re-type Password" @bind-Value="Password2" Validation="@((string s) => s == User.Password ? null : "The password does not match")" InputType="InputType.Password" Variant="Variant.Outlined" Required="true" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="@Close">
+            Close
+        </MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@Save">
+            Save
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code{
+    [CascadingParameter] public IMudDialogInstance MudDialog { get; set; }
+
+    private MudForm form = new();
+    private UserRegisterDto User { get; set; }
+    private string Password2 { get; set; }
+
+    protected override void OnInitialized()
+    {
+        User = new();
+    }
+
+    private async Task Save()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                await SwaggerClient.RegisterAsync(User);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            catch (ApiException e)
+            {
+                Snackbar.Add(e.InnerException.Message, Severity.Error);
+            }
+        }
+    }
+
+    private async Task Close()
+    {
+        MudDialog.Cancel();
+    }
+}
