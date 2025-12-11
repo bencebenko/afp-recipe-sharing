@@ -3,6 +3,6 @@
     public interface IRequestService
     {
         Task<bool> LoginAsync(string username, string password);
-        void LogoutAsync();
+        Task LogoutAsync();
     }
 }
