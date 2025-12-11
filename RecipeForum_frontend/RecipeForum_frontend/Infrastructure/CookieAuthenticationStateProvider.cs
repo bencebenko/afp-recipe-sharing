@@ -7,7 +7,6 @@ namespace RecipeForum_frontend.Infrastructure
     public class CookieAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly SwaggerClient _apiClient;
-        private bool _isAuthenticated = false;
 
         public CookieAuthenticationStateProvider(SwaggerClient apiClient)
         {
@@ -16,27 +15,35 @@ namespace RecipeForum_frontend.Infrastructure
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            if (_isAuthenticated)
-            {
-                var cachedIdentity = new ClaimsIdentity("cookie-auth");
-                return new AuthenticationState(new ClaimsPrincipal(cachedIdentity));
-            }
-
             try
             {
+                var user = await _apiClient.GetCurrentUserAsync();
+
                 var identity = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Role, "User")
-                }, "cookie-auth");
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, "USER")
+            }, "cookie-auth");
 
-                _isAuthenticated = true; // Mark as authenticated
                 return new AuthenticationState(new ClaimsPrincipal(identity));
             }
             catch (ApiException ex) when (ex.StatusCode == 401)
             {
-                _isAuthenticated = false;
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
+        }
+
+        public async Task MarkUserAsLoggedOut()
+        {
+            // új auth state
+            var anon = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            NotifyAuthenticationStateChanged(Task.FromResult(anon));
+        }
+
+        public async Task MarkUserAsLoggedIn()
+        {
+            var state = await GetAuthenticationStateAsync();
+            NotifyAuthenticationStateChanged(Task.FromResult(state));
         }
 
         public void NotifyAuthenticationStateChanged()
