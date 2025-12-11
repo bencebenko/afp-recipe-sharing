@@ -16,15 +16,6 @@
 
 <PageTitle>Home</PageTitle>
 
-@if (true) @*Only if the user is logged in. Temporary place for the add recipe button only for testing, in "prod" iw will be up in the navbar*@
-{
-<MudGrid>
-    <MudItem>
-        <MudButton Variant="Variant.Filled" OnClick="@(() => OpenAddRecipeDialog())" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary">Add Recipe</MudButton>
-    </MudItem>
-</MudGrid>
-<MudDivider Class="my-6" />
-}
 
 @if (CategoryFilterState.ShowFilter)
 {
@@ -170,32 +161,6 @@ else
         return Task.CompletedTask;
     }
 
-    private async Task OpenAddRecipeDialog()
-    {
-        var materials = await SwaggerClient.GetAllMaterialsAsync();
-        var categories = await SwaggerClient.GetAllCategoriesAsync();
-        var parameters = new DialogParameters()
-        {
-            ["Materials"] = materials.ToList(),
-            ["Categories"] = categories.ToList()
-        };
-
-        var options = new DialogOptions()
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium,
-            FullWidth = true,
-            CloseOnEscapeKey = true
-        };
-
-        var dialog = await DialogService.ShowAsync<AddRecipeDialog>("Add New Recipe", parameters, options);
-        var result = await dialog.Result;
-        if (!result.Canceled)
-        {
-            await LoadRecipesAsync(forceApiCall: true);
-            Snackbar.Add("Recipe added", Severity.Success);
-        }
-    }
 
     private async Task OpenEditRecipeDialog(RecipeDto recipe)
     {
