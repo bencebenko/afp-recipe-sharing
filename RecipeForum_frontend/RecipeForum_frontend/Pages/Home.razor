@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
 @using RecipeForum_frontend.Infrastructure
 @using RecipeForum_frontend.Dialogs
 @inject NavigationManager NavigationManager
@@ -17,12 +18,12 @@
 
 @if (true) @*Only if the user is logged in. Temporary place for the add recipe button only for testing, in "prod" iw will be up in the navbar*@
 {
-    <MudGrid>
-        <MudItem>
-            <MudButton Variant="Variant.Filled" OnClick="@(() => OpenAddRecipeDialog())" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary">Add Recipe</MudButton>
-        </MudItem>
-    </MudGrid>
-    <MudDivider Class="my-6" />
+<MudGrid>
+    <MudItem>
+        <MudButton Variant="Variant.Filled" OnClick="@(() => OpenAddRecipeDialog())" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary">Add Recipe</MudButton>
+    </MudItem>
+</MudGrid>
+<MudDivider Class="my-6" />
 }
 
 @if (CategoryFilterState.ShowFilter)
@@ -51,16 +52,23 @@
                     </MudCardHeader>
                     <MudCardMedia Image="@item.ImageRef"  Height="250" />
                     <MudCardActions>
-                        <MudTooltip Text="Like">
-                            <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
-                        </MudTooltip>
-                        <MudTooltip Text="More">
-                            <MudMenu Icon="@Icons.Material.Filled.Menu">
-                                <MudMenuItem Icon="@Icons.Material.Filled.FoodBank" OnClick="@(() => NavigateToRecipe(item.Id))">Details</MudMenuItem>
-                                <MudMenuItem Icon="@Icons.Material.Filled.Edit" IconColor="Color.Secondary" OnClick="@(() => OpenEditRecipeDialog(item))">Edit</MudMenuItem>
-                                <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => OpenDeleteDialog(item.Id))">Delete</MudMenuItem>
-                            </MudMenu>
-                        </MudTooltip>
+                        <AuthorizeView>
+                            <Authorized>
+                                <MudTooltip Text="Like">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default" />
+                                </MudTooltip>
+                                <MudTooltip Text="More">
+                                    <MudMenu Icon="@Icons.Material.Filled.Menu">
+                                        <MudMenuItem Icon="@Icons.Material.Filled.FoodBank" OnClick="@(() => NavigateToRecipe(item.Id))">Details</MudMenuItem>
+                                        <MudMenuItem Icon="@Icons.Material.Filled.Edit" IconColor="Color.Secondary" OnClick="@(() => OpenEditRecipeDialog(item))">Edit</MudMenuItem>
+                                        <MudMenuItem Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error" OnClick="@(() => OpenDeleteDialog(item.Id))">Delete</MudMenuItem>
+                                    </MudMenu>
+                                </MudTooltip>
+                            </Authorized>
+                            <NotAuthorized>
+                                <MudButton StartIcon="@Icons.Material.Filled.FoodBank" OnClick="@(() => NavigateToRecipe(item.Id))">Details</MudButton>
+                            </NotAuthorized>
+                        </AuthorizeView>
                     </MudCardActions>
                 </MudCard>
             </MudItem>
@@ -68,12 +76,10 @@
     </MudGrid>
 }
 else
-{
-    
+{ 
         <MudItem xs="12" sm="6" md="4" Class="d-flex justify-content-center">
             <MudAlert Severity="Severity.Info" Variant="Variant.Filled" Square="true" Class="my-2">No results found</MudAlert>
         </MudItem>
-    
 }
     
 @code{
@@ -105,7 +111,7 @@ else
     public void Dispose()
     {
         CategoryFilterState.OnChange -= StateHasChanged;
-        CategoryFilterState.OnFilterReset += ResetAndLoadAll;
+        CategoryFilterState.OnFilterReset -= ResetAndLoadAll;
         SearchState.OnChange -= OnSearchStateChanged;
     }
 
@@ -174,10 +180,10 @@ else
             ["Categories"] = categories.ToList()
         };
 
-        var options = new DialogOptions() 
-        { 
-            CloseButton = true, 
-            MaxWidth = MaxWidth.Medium, 
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
             FullWidth = true,
             CloseOnEscapeKey = true
         };

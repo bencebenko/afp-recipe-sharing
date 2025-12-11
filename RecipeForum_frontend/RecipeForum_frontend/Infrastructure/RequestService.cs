@@ -26,9 +26,10 @@ namespace RecipeForum_frontend.Infrastructure
             return response.IsSuccessStatusCode;
         }
 
-        public void LogoutAsync()
+        public async Task LogoutAsync()
         {
-            throw new NotImplementedException();
+            var response = await _client.PostAsync("http://localhost:8080/logout", null);
+            response.EnsureSuccessStatusCode();
         }
     }
 }
