@@ -1,0 +1,69 @@
+@startuml
+skinparam ArrowColor #657b83
+skinparam ArrowThickness 2
+skinparam DefaultFontName Dejavu Serif
+skinparam RoundCorner 15
+
+skinparam boundary {
+    BackgroundColor #ddd4b7ff
+    BorderColor #b58900
+    FontColor #657b83
+}
+skinparam control {
+    BackgroundColor #d4c0c0ff
+    BorderColor #dc322f
+    FontColor #657b83
+}
+skinparam entity {
+    BackgroundColor #fdf6e3
+    BorderColor #657b83
+    FontColor #657b83
+}
+
+package "Határ réteg" {
+    boundary LoginUI
+    boundary ProfileUI
+    boundary RegistrationUI
+    boundary AddRecipeUI
+    boundary EditRecipeUI
+    boundary DeleteRecipeUI
+    boundary RecipeBrowsingUI
+    boundary RecipeSearchingUI
+    boundary CategoryFilterUI
+}
+
+package "Kontroll réteg" {
+    control UserController
+    control CategoryController
+    control MaterialController
+    control RecipeController
+}
+
+package "Entitás réteg" {
+    entity RecipeUser
+    entity Category
+    entity Material
+    entity Recipe
+}
+
+LoginUI --> UserController
+ProfileUI --> UserController
+RegistrationUI --> UserController
+
+AddRecipeUI --> CategoryController
+AddRecipeUI --> MaterialController
+AddRecipeUI --> RecipeController
+
+EditRecipeUI --> RecipeController
+DeleteRecipeUI --> RecipeController
+
+RecipeBrowsingUI --> RecipeController
+RecipeSearchingUI --> RecipeController
+CategoryFilterUI --> RecipeController
+CategoryFilterUI --> CategoryController
+
+UserController --> RecipeUser
+CategoryController --> Category
+MaterialController --> Material
+RecipeController --> Recipe
+@enduml
