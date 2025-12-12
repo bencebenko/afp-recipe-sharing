@@ -1,0 +1,56 @@
+@startuml
+left to right direction
+skinparam ArrowColor #657b83
+skinparam actorStyle awesome
+
+
+together{
+    actor "Látogató" as Visitor
+    actor "Felhasználó" as User
+}
+
+database "Háttérrendszer" as DB
+
+rectangle "Receptmegosztó Platform – Használati eset diagram" as UC_Package {
+    usecase "Receptek böngészése" as UC_Browse
+    usecase "Receptek keresése" as UC_Search
+    usecase "Recept megtekintése" as UC_View
+    usecase "Regisztráció" as UC_Register
+    usecase "Bejelentkezés" as UC_Login
+    usecase "Profil megtekintése" as UC_Profile
+    usecase "Új recept hozzáadása" as UC_Add
+    usecase "Recept módosítása" as UC_Edit
+    usecase "Recept törlése" as UC_Delete
+    usecase "Kijelentkezés" as UC_Logout
+
+    usecase "Hitelesítés" as UC_Auth
+}
+
+Visitor --> UC_Browse
+Visitor --> UC_Search
+Visitor --> UC_View
+Visitor --> UC_Register
+Visitor --> UC_Login
+
+User --> UC_Browse
+User --> UC_Search
+User --> UC_View
+User --> UC_Profile
+User --> UC_Add
+User --> UC_Edit
+User --> UC_Delete
+User --> UC_Logout
+
+UC_Login ..> UC_Auth : <<include>>
+UC_Profile <.. UC_Auth : <<include>>
+UC_Add <.. UC_Auth : <<include>>
+UC_Edit <.. UC_Auth : <<include>>
+UC_Delete <.. UC_Auth : <<include>>
+UC_Logout <.. UC_Auth : <<include>>
+
+UC_Browse --> DB
+UC_Search --> DB
+UC_Register --> DB
+UC_Auth --> DB
+
+@enduml
